@@ -37,7 +37,8 @@ export const donneesLegales = {
       nom: "Neon",
       raisonSociale: "Neon, LLC (groupe Databricks)",
       role: "Hébergement de la base de données PostgreSQL de l'application",
-      adresse: "Databricks Inc., 160 Spear Street, Suite 1300, San Francisco, CA 94105",
+      adresse:
+        "Databricks Inc., 160 Spear Street, Suite 1300, San Francisco, CA 94105",
       contact: "privacy@databricks.com",
       siteWeb: "https://neon.com",
       donnees:
