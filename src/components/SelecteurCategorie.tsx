@@ -19,6 +19,8 @@ interface SelecteurCategorieProps {
   readonly idErreur?: string;
   /** Liste des catégories proposées (dépenses par défaut). */
   readonly categories?: readonly CategorieComptable[];
+  /** Ne propose d'abord que les catégories courantes, avec « Afficher toutes les catégories ». */
+  readonly restreindreAuxCourantes?: boolean;
 }
 
 const normaliser = (texte: string) =>
@@ -38,15 +40,24 @@ export function SelecteurCategorie({
   invalide = false,
   idErreur,
   categories = CATEGORIES_COMPTABLES,
+  restreindreAuxCourantes = false,
 }: SelecteurCategorieProps) {
   const idListe = useId();
   const [ouvert, setOuvert] = useState(false);
   const [recherche, setRecherche] = useState("");
   const [indexActif, setIndexActif] = useState(0);
+  const [toutAfficher, setToutAfficher] = useState(false);
   const estMobile = useEstMobile();
 
+  const peutToutAfficher = restreindreAuxCourantes && !toutAfficher;
+  // La catégorie déjà choisie reste toujours proposée.
+  const proposees = peutToutAfficher
+    ? categories.filter(
+        (categorie) => categorie.courante || categorie.libelle === valeur,
+      )
+    : categories;
   const requete = normaliser(recherche);
-  const resultats = categories.filter(
+  const resultats = proposees.filter(
     (categorie) =>
       !requete ||
       normaliser(`${categorie.libelle} ${categorie.description}`).includes(
@@ -111,6 +122,8 @@ export function SelecteurCategorie({
               resultats={resultats}
               onChoisir={choisir}
               onFermer={fermer}
+              peutToutAfficher={peutToutAfficher}
+              onToutAfficher={() => setToutAfficher(true)}
             />
           )}
         </>
@@ -152,7 +165,9 @@ export function SelecteurCategorie({
             >
               {resultats.length === 0 && (
                 <li className="p-3 text-sm text-zinc-500">
-                  Aucune catégorie trouvée
+                  {peutToutAfficher
+                    ? "Aucune catégorie courante trouvée"
+                    : "Aucune catégorie trouvée"}
                 </li>
               )}
               {resultats.map((categorie, index) => (
@@ -181,6 +196,22 @@ export function SelecteurCategorie({
                   )}
                 </li>
               ))}
+              {peutToutAfficher && (
+                <li role="presentation" className="p-2">
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    // mouseDown pour agir avant le blur du champ
+                    onMouseDown={(evenement) => {
+                      evenement.preventDefault();
+                      setToutAfficher(true);
+                    }}
+                    className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100"
+                  >
+                    Afficher toutes les catégories
+                  </button>
+                </li>
+              )}
             </ul>
           )}
         </div>

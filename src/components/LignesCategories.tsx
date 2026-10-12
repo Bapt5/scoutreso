@@ -21,6 +21,8 @@ interface LignesCategoriesProps {
   readonly afficherErreurs: boolean;
   /** Liste des catégories proposées (dépenses par défaut). */
   readonly categories?: readonly CategorieComptable[];
+  /** Ne propose d'abord que les catégories courantes (membres simples). */
+  readonly restreindreAuxCourantes?: boolean;
 }
 
 // Lignes « montant + catégorie comptable » d'un justificatif. La première
@@ -31,6 +33,7 @@ export function LignesCategories({
   onChange,
   afficherErreurs,
   categories = CATEGORIES_COMPTABLES,
+  restreindreAuxCourantes = false,
 }: LignesCategoriesProps) {
   const modifierLigne = (index: number, modification: Partial<LigneSaisie>) =>
     onChange(
@@ -93,6 +96,7 @@ export function LignesCategories({
               invalide={erreurCategorie}
               idErreur={`erreur-${idCategorie}`}
               categories={categories}
+              restreindreAuxCourantes={restreindreAuxCourantes}
             />
             {/* Colonne réservée pour que la mise en page ne bouge pas à l'ajout de lignes */}
             <div className="pt-[31px] w-10">

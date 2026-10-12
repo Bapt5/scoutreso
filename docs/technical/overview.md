@@ -5,6 +5,7 @@
 - Capture photo et import de justificatifs (images/PDF)
 - Deux onglets de premier niveau : **Dépenses** et **Recettes**
 - Dépenses : deux types d’envoi : **note de frais** (plusieurs justificatifs avec date, activité liée et description, RIB facultatif joint au mail) et **dépense avec moyen de paiement du groupe** (un seul justificatif, moyen de paiement du groupe) ; chaque justificatif est une section repliable avec une ou plusieurs lignes (montant + catégorie comptable). Le RIB, comme les justificatifs, n’est jamais stocké
+- Catégories comptables : listes fixes dans `src/constants/configDepenses.ts` et `configRecettes.ts`. Le champ `courante` marque celles proposées d’emblée aux membres simples (`restreindreAuxCourantes` dans `SelecteurCategorie`, bouton « Afficher toutes les catégories ») ; c’est un filtre d’affichage seulement, la validation serveur accepte toutes les catégories autorisées
 - Recettes : signalement d’un encaissement à venir (virement, chèque, liquide ou carte bancaire) avec une ou plusieurs lignes (montant + catégorie comptable) ; **aucun justificatif obligatoire**, une pièce jointe reste possible mais facultative
 - Envoi automatique par email (Trésoriers du groupe + utilisateur)
 - Historique optionnel des dépenses, recettes et notes de frais (activable par groupe, sans justificatifs), consultable depuis un ordinateur et modifiable par les responsables : voir [Historique](/technical/historique)

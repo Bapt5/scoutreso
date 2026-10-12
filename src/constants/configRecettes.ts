@@ -23,16 +23,19 @@ export const CATEGORIES_COMPTABLES_RECETTES: readonly CategorieComptable[] = [
   { libelle: "Déduction commission paiement en ligne (-)", description: "" },
   {
     libelle: "Dons avec Reçu Fiscal",
+    courante: true,
     description:
       'Le don est un "acte désintéressé", en aucun cas la participation de parents pour une activité de Scoutisme ne peut-être considérée comme un Don. Le montant doit être au minima celui que vous avez saisi dans intranet pour émission des reçus fiscaux aux familles et les dons en dehors de la période d\'adhésion dont vous avez fait la demande au service donateur.',
   },
   {
     libelle: "Dons, calendriers (sans reçu fiscal)",
+    courante: true,
     description:
       "Toutes les sommes versées par des particuliers qui ne donnent pas lieu à un reçu fiscal (calendriers, dons dans le cas où un reçu n'est pas demandé)",
   },
   {
     libelle: "Extra-Jobs",
+    courante: true,
     description:
       "Toutes les sommes reçues lors des extra-Jobs des Pionniers-Caravelles ou des Compagnons. => Consultez la fiche https://chefscadres.sgdf.fr/ressources/#/explore/file/1427/ => L'extra-job ne doit pas pouvoir être requalifié par la loi comme une activité commerciale (achat sans transformation pour revente interdit) ou une activité salariale (lien de subordination). /!\\ L'extra-Job ne permet pas l'édition d'un reçu fiscal.",
   },
@@ -47,15 +50,21 @@ export const CATEGORIES_COMPTABLES_RECETTES: readonly CategorieComptable[] = [
     description:
       "Participation des stagiaires aux frais de formations interne (SGDF) ou externe",
   },
-  { libelle: "Locations/Mise à disposition de Matériel", description: "" },
+  {
+    libelle: "Locations/Mise à disposition de Matériel",
+    courante: true,
+    description: "",
+  },
   { libelle: "Mise à disposition Bases", description: "" },
   {
     libelle: "Participation Activités (camp, we...)",
+    courante: true,
     description:
       "Tous les versements correspondant à la participations aux activités SGDF (WE, journée, mini-camps et les camps d'été, participation à un événement territorial, AG, Assemblée ou Conseil Territorial...) , recette ou dépense -> par tout moyen de règlement : chq, chq vacances, virmt, paiement en ligne en début année, y compris les frais de dossier et frais adm ANCV (en montant négatif)",
   },
   {
     libelle: "Participation familles aux frais de fonctionnement",
+    courante: true,
     description:
       "Participation des familles au fonctionnement du groupe lors de l'Adhésion",
   },
@@ -66,6 +75,7 @@ export const CATEGORIES_COMPTABLES_RECETTES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Refacturation médecins, pharmaciens",
+    courante: true,
     description:
       "Remboursement des frais médicaux avancés (Medecins, Pharmacie, ...) par les familles",
   },
@@ -104,6 +114,7 @@ export const CATEGORIES_COMPTABLES_RECETTES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Vente article boutique",
+    courante: true,
     description:
       "Revente d'articles de la Boutique du Scoutisme aux familles et autre (chemises, bougies Lumière de Bethléem, ...)",
   },

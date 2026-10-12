@@ -31,6 +31,10 @@ Le mode de paiement n’est pas demandé. Vous pouvez joindre votre **RIB** (PDF
 
 Un seul justificatif par envoi : faites un envoi par dépense. Renseignez la **date du justificatif**, une **description** si elle est utile, une ou plusieurs lignes « montant + catégorie comptable » et le **moyen de paiement** : carte de procurement, espèces du groupe, virement du groupe ou chèque du groupe. Aucun RIB n’est demandé.
 
+::: tip Catégories courantes
+Pour un membre simple, la liste des catégories ne propose d’abord que les plus courantes. Le bouton **Afficher toutes les catégories**, en bas de la liste, donne accès à l’ensemble. Les propriétaires et administrateurs voient directement toutes les catégories.
+:::
+
 Un justificatif peut couvrir plusieurs catégories comptables : cliquez sur **Ajouter une catégorie** pour ajouter une ligne (montant + catégorie), et sur la corbeille pour la retirer (la première ligne est toujours présente). La liste de catégories se filtre en tapant, et la description de la catégorie choisie s’affiche sous le champ. Le total du justificatif, puis le total général, se calculent automatiquement.
 
 Les justificatifs se traitent un par un : chacun est une section repliable qui indique s’il est **complet** ou **à compléter**. L’envoi se fait une fois tous les justificatifs complétés.

@@ -38,6 +38,8 @@ interface FormulaireRecetteProps {
   readonly estEnLigne: boolean;
   /** Recadrage automatique de la pièce jointe avec Scanic (paramètre du groupe). */
   readonly scanActive?: boolean;
+  /** Owner/admin du groupe : toutes les catégories sont proposées d'emblée. */
+  readonly estAdmin?: boolean;
 }
 
 export function FormulaireRecette({
@@ -49,6 +51,7 @@ export function FormulaireRecette({
   onChangementUnite,
   estEnLigne,
   scanActive,
+  estAdmin = false,
 }: Readonly<FormulaireRecetteProps>) {
   const [branche, setBranche] = useState(uniteInitiale);
   const [detail, setDetail] = useState<DetailSaisieRecette>(
@@ -258,6 +261,7 @@ export function FormulaireRecette({
         }
         afficherErreurs={afficherErreursValidation}
         categories={CATEGORIES_COMPTABLES_RECETTES}
+        restreindreAuxCourantes={!estAdmin}
       />
 
       <div className="space-y-2">

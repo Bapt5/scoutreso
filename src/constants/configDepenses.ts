@@ -1,6 +1,8 @@
 export interface CategorieComptable {
   readonly libelle: string;
   readonly description: string;
+  /** Proposée par défaut aux membres simples ; les autres via « Afficher toutes les catégories ». */
+  readonly courante?: boolean;
 }
 
 export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
@@ -26,11 +28,13 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Achat Matériel Pédagogique",
+    courante: true,
     description:
       "Achat faits par le groupe pour faire de l'animation : livres, bougies, écussons, déguisements pour imaginaire, tissus, papier couleur, crépon",
   },
   {
     libelle: "Achat Petit Matériel",
+    courante: true,
     description:
       "Toutes factures inférieures à 500,00 €, sauf matériel pédagogique et fourniture administrative",
   },
@@ -41,6 +45,7 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Alimentation, Intendance",
+    courante: true,
     description:
       "Alimentation pour les camps, les week end, les rassemblements, ... Détailler les tickets de caisse et tout ce qui n'est pas alimentaire -> achat de petit matériel",
   },
@@ -66,6 +71,7 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Carburant",
+    courante: true,
     description:
       "Achat de carburant ou recharge electrique effectué par un moyen de paiement de la structure",
   },
@@ -84,6 +90,7 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Entretien Matériel",
+    courante: true,
     description:
       "Achat de pièces de rechanges en vue de réparer ou entretenir du matériel existant",
   },
@@ -120,10 +127,12 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Gaz : achat de bouteille",
+    courante: true,
     description: "Uniquement bouteilles de gaz achetées dans le commerce",
   },
   {
     libelle: "Hébergement, séminaire",
+    courante: true,
     description:
       "Pour une unité qui dormirait lors d'un week-end ou camp dans une structure payante : location gite, places de camping, location terrain, location salle de réunion, auberge de jeunesse (compas en projet international itinérant)",
   },
@@ -134,15 +143,18 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Imprimés, Annonces",
+    courante: true,
     description:
       "Tout ce qui concerne la publicité, les documents édités pour de la communication à l'extérieur de l'association SGDF",
   },
   {
     libelle: "Location Matériel",
+    courante: true,
     description: "Toute location de matériel : Outillage, Sonos, Podium etc",
   },
   {
     libelle: "Location Véhicule/Bateau",
+    courante: true,
     description:
       "Location d'un véhicule pour une activité ou un camp, sans chauffeur Location de bateaux",
   },
@@ -153,6 +165,7 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Médecin, Pharmacie",
+    courante: true,
     description:
       "Frais avancés pour une consultation chez le médecin et pharmacie ; Achats pour mise à niveau d'une trousse de secours, d'une petite pharmacie, avance de médicament à la suite d'une visite chez le médecin => Pensez à demander le remboursement aux familles (nature de la recette = refacturation médecins, pharmaciens)",
   },
@@ -167,11 +180,13 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Péage-Parking",
+    courante: true,
     description:
       "Péage et parking payés uniquement par les moyens de paiement de la structure",
   },
   {
     libelle: "Remboursement via Ndf frais de transport",
+    courante: true,
     description:
       "Tous les déplacements rentrant dans le cadre d'activités SGDF avancés par les adhérents",
   },
@@ -190,6 +205,7 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   { libelle: "Taxes portuaires et droits de douane", description: "" },
   {
     libelle: "Transport collectif : en Autocar",
+    courante: true,
     description:
       "Autocar privé avec chauffeur avec moyen de paiement de la structure Autocar public longue distance (exemple : Flixbus, compagnie diverses) avec moyen de paiement de la structure",
   },
@@ -205,11 +221,13 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
   },
   {
     libelle: "Transport collectif en commun (RER, métro, Tram, bus, etc.)",
+    courante: true,
     description:
       "Transport en commun ville et banlieue avec moyen de paiement de la structure",
   },
   {
     libelle: "Transport collectif Train",
+    courante: true,
     description:
       "Achat de billet de train avec un des moyens de paiement de la structure",
   },

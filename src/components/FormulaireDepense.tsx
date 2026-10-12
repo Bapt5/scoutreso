@@ -766,6 +766,7 @@ export function FormulaireDepense({
         <LignesCategories
           idPrefixe={idPrefixe}
           categories={categoriesPourTypeEnvoi(typeEnvoi)}
+          restreindreAuxCourantes={!estAdmin}
           lignes={detail.lignes}
           onChange={(lignes) => modifierDetailDepense(index, { lignes })}
           afficherErreurs={afficherErreursValidation}
