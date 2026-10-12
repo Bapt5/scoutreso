@@ -56,7 +56,7 @@ Vos données ne sont ni vendues ni utilisées à des fins publicitaires.
 | Compte                                         | Jusqu'à la suppression de votre compte (page « Mon compte », après avoir quitté vos groupes)                                                                                |
 | Historique et suivi budgétaire d'un groupe     | Tant que le groupe garde l'option active. Désactiver l'option, ou supprimer le groupe, supprime les données. Supprimer votre compte anonymise votre nom (« Ancien membre ») |
 | Note de frais signée et ses codes de signature | Le temps du circuit de signature, supprimés à sa clôture                                                                                                                    |
-| Journaux techniques et d'audit                 | Selon la durée de conservation de l'hébergeur de journaux, avec identifiants pseudonymisés                                                     |
+| Journaux techniques et d'audit                 | Selon la durée de conservation de l'hébergeur de journaux, avec identifiants pseudonymisés                                                                                  |
 | E-mails envoyés                                | Dans les boîtes mail des destinataires, sous leur responsabilité                                                                                                            |
 
 ## Vos droits
