@@ -16,6 +16,7 @@ import {
   lireCategoriesRecentes,
   ordonnerParRecence,
 } from "@/lib/categoriesRecentes";
+import { rechercherCategories } from "@/lib/rechercheCategories";
 import { useEstMobile } from "@/lib/useEstMobile";
 
 interface SelecteurCategorieProps {
@@ -34,9 +35,6 @@ interface SelecteurCategorieProps {
   /** Groupe dont les catégories récemment utilisées sont proposées en premier. */
   readonly identifiantOrganisation?: string;
 }
-
-const normaliser = (texte: string) =>
-  texte.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 // Sur ordinateur : liste déroulante avec recherche. Sur téléphone : le champ
 // ouvre une feuille plein écran (recherche + liste pleine largeur), car la
@@ -84,14 +82,7 @@ export function SelecteurCategorie({
       : categories,
     recentes,
   );
-  const requete = normaliser(recherche);
-  const resultats = proposees.filter(
-    (categorie) =>
-      !requete ||
-      normaliser(`${categorie.libelle} ${categorie.description}`).includes(
-        requete,
-      ),
-  );
+  const resultats = rechercherCategories(proposees, recherche);
   const idOption = (index: number) => `${idListe}-option-${index}`;
 
   const fermer = useCallback(() => {
