@@ -23,7 +23,8 @@ describe("categoriesPourTypeEnvoi", () => {
       "Assurances",
       "Carburant",
       "Eau",
-      "Participation Activités",
+      "Participation Activités (camp, we...)",
+      "Participation au Fct du Mouvement",
       "Transport collectif : en Autocar",
       "Transport collectif : en Avion",
       "Transport collectif : en Bateau",
@@ -41,7 +42,7 @@ describe("categoriesPourTypeEnvoi", () => {
     expect(libelles("depense-groupe")).toContain("Carburant");
   });
 
-  it("classe 1 catégorie NDF seule, 22 groupe seul et 23 communes", () => {
+  it("classe 1 catégorie NDF seule, 23 groupe seul et 23 communes", () => {
     const ndf = new Set(libelles("note-de-frais"));
     const groupe = new Set(libelles("depense-groupe"));
     const ndfSeul = LIBELLES_CATEGORIES_COMPTABLES.filter(
@@ -54,7 +55,7 @@ describe("categoriesPourTypeEnvoi", () => {
       (libelle) => ndf.has(libelle) && groupe.has(libelle),
     );
     expect([ndfSeul.length, groupeSeul.length, communes.length]).toEqual([
-      1, 22, 23,
+      1, 23, 23,
     ]);
   });
 });
