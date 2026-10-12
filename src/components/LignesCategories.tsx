@@ -23,6 +23,8 @@ interface LignesCategoriesProps {
   readonly categories?: readonly CategorieComptable[];
   /** Ne propose d'abord que les catégories courantes (membres simples). */
   readonly restreindreAuxCourantes?: boolean;
+  /** Groupe dont les catégories récemment utilisées sont proposées en premier. */
+  readonly identifiantOrganisation?: string;
 }
 
 // Lignes « montant + catégorie comptable » d'un justificatif. La première
@@ -34,6 +36,7 @@ export function LignesCategories({
   afficherErreurs,
   categories = CATEGORIES_COMPTABLES,
   restreindreAuxCourantes = false,
+  identifiantOrganisation,
 }: LignesCategoriesProps) {
   const modifierLigne = (index: number, modification: Partial<LigneSaisie>) =>
     onChange(
@@ -97,6 +100,7 @@ export function LignesCategories({
               idErreur={`erreur-${idCategorie}`}
               categories={categories}
               restreindreAuxCourantes={restreindreAuxCourantes}
+              identifiantOrganisation={identifiantOrganisation}
             />
             {/* Colonne réservée pour que la mise en page ne bouge pas à l'ajout de lignes */}
             <div className="pt-[31px] w-10">

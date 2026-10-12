@@ -1,11 +1,21 @@
 "use client";
 
-import { useCallback, useId, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useId,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import {
   CATEGORIES_COMPTABLES,
   type CategorieComptable,
 } from "@/constants/configDepenses";
 import { FeuilleCategories } from "@/components/FeuilleCategories";
+import {
+  lireCategoriesRecentes,
+  ordonnerParRecence,
+} from "@/lib/categoriesRecentes";
 import { useEstMobile } from "@/lib/useEstMobile";
 
 interface SelecteurCategorieProps {
@@ -21,6 +31,8 @@ interface SelecteurCategorieProps {
   readonly categories?: readonly CategorieComptable[];
   /** Ne propose d'abord que les catégories courantes, avec « Afficher toutes les catégories ». */
   readonly restreindreAuxCourantes?: boolean;
+  /** Groupe dont les catégories récemment utilisées sont proposées en premier. */
+  readonly identifiantOrganisation?: string;
 }
 
 const normaliser = (texte: string) =>
@@ -41,6 +53,7 @@ export function SelecteurCategorie({
   idErreur,
   categories = CATEGORIES_COMPTABLES,
   restreindreAuxCourantes = false,
+  identifiantOrganisation,
 }: SelecteurCategorieProps) {
   const idListe = useId();
   const [ouvert, setOuvert] = useState(false);
@@ -49,13 +62,28 @@ export function SelecteurCategorie({
   const [toutAfficher, setToutAfficher] = useState(false);
   const estMobile = useEstMobile();
 
+  // Lues à l'ouverture seulement : le stockage local n'existe pas côté serveur.
+  const recentes = useMemo(
+    () =>
+      ouvert && identifiantOrganisation
+        ? lireCategoriesRecentes(identifiantOrganisation)
+        : {},
+    [ouvert, identifiantOrganisation],
+  );
+
   const peutToutAfficher = restreindreAuxCourantes && !toutAfficher;
-  // La catégorie déjà choisie reste toujours proposée.
-  const proposees = peutToutAfficher
-    ? categories.filter(
-        (categorie) => categorie.courante || categorie.libelle === valeur,
-      )
-    : categories;
+  // La catégorie déjà choisie et les récentes restent toujours proposées.
+  const proposees = ordonnerParRecence(
+    peutToutAfficher
+      ? categories.filter(
+          (categorie) =>
+            categorie.courante ||
+            categorie.libelle === valeur ||
+            categorie.libelle in recentes,
+        )
+      : categories,
+    recentes,
+  );
   const requete = normaliser(recherche);
   const resultats = proposees.filter(
     (categorie) =>

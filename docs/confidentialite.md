@@ -56,7 +56,7 @@ Vos données ne sont ni vendues ni utilisées à des fins publicitaires.
 | Compte                                         | Jusqu'à la suppression de votre compte (page « Mon compte », après avoir quitté vos groupes)                                                                                |
 | Historique et suivi budgétaire d'un groupe     | Tant que le groupe garde l'option active. Désactiver l'option, ou supprimer le groupe, supprime les données. Supprimer votre compte anonymise votre nom (« Ancien membre ») |
 | Note de frais signée et ses codes de signature | Le temps du circuit de signature, supprimés à sa clôture                                                                                                                    |
-| Journaux techniques et d'audit                 | Selon la durée de conservation de l'hébergeur de journaux, avec identifiants pseudonymisés                                                     |
+| Journaux techniques et d'audit                 | Selon la durée de conservation de l'hébergeur de journaux, avec identifiants pseudonymisés                                                                                  |
 | E-mails envoyés                                | Dans les boîtes mail des destinataires, sous leur responsabilité                                                                                                            |
 
 ## Vos droits
@@ -70,6 +70,6 @@ La base de données est hébergée à Francfort et les e-mails sont envoyés dep
 ## Cookies et traceurs
 
 - Un **cookie de session** est déposé à la connexion : il est strictement nécessaire au fonctionnement du service et ne demande donc pas votre consentement.
-- Le navigateur garde, sur votre appareil seulement, quelques préférences (année comptable choisie, avis de nouveauté déjà vu, retour après invitation). Elles ne sont jamais envoyées à un tiers.
+- Le navigateur garde, sur votre appareil seulement, quelques préférences (année comptable choisie, catégories comptables récemment utilisées, avis de nouveauté déjà vu, retour après invitation). Elles ne sont jamais envoyées à un tiers.
 - L'application installable (PWA) met en cache uniquement des fichiers statiques, jamais vos pages ni vos données.
 - Aucun outil de mesure d'audience, de publicité ou de réseau social n'est actif : il n'y a donc pas de bandeau de consentement aux cookies.

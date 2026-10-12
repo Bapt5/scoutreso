@@ -662,6 +662,7 @@ export default function Home() {
                     uniteInitiale={groupe.unitPreference}
                     aTresorier={groupe.aTresorier}
                     estAdmin={groupe.isAdmin}
+                    identifiantOrganisation={organisation.id}
                     onChangementUnite={(unitId) =>
                       void fetch("/api/user/unit-preference", {
                         method: "POST",
@@ -699,6 +700,7 @@ export default function Home() {
                     aTresorier={groupe.aTresorier}
                     scanActive={groupe.parametres?.scanJustificatifsActif}
                     estAdmin={groupe.isAdmin}
+                    identifiantOrganisation={organisation.id}
                     onChangementUnite={(unitId) =>
                       void fetch("/api/user/unit-preference", {
                         method: "POST",
