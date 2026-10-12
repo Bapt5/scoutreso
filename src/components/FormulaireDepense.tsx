@@ -56,6 +56,7 @@ import { AccordeonJustificatif } from "@/components/AccordeonJustificatif";
 import { IconeVoiture } from "@/components/IconeVoiture";
 import { ChampsKilometrage } from "@/components/ChampsKilometrage";
 import { LignesCategories } from "@/components/LignesCategories";
+import { memoriserCategoriesRecentes } from "@/lib/categoriesRecentes";
 import { SelecteurPosteBudgetaire } from "@/components/SelecteurPosteBudgetaire";
 import type { PosteBudgetaire } from "@/lib/budget";
 import type { UniteGroupe } from "@/lib/group";
@@ -99,6 +100,8 @@ interface FormulaireDepenseProps {
   /** Responsable du groupe (owner/admin) : seul rôle pouvant déclarer une
    * dépense avec moyen de paiement du groupe sans justificatif. */
   readonly estAdmin?: boolean;
+  /** Groupe courant : sert à mémoriser les catégories récemment utilisées. */
+  readonly identifiantOrganisation?: string;
 }
 
 export function FormulaireDepense({
@@ -120,6 +123,7 @@ export function FormulaireDepense({
   onCreerNouvelleNote,
   onSupprimerPieceJointe,
   estAdmin = false,
+  identifiantOrganisation,
   estEnLigne = true,
 }: FormulaireDepenseProps & { estEnLigne?: boolean }) {
   const router = useRouter();
@@ -512,6 +516,15 @@ export function FormulaireDepense({
         }
       }
 
+      if (reponse.ok && identifiantOrganisation) {
+        memoriserCategoriesRecentes(
+          identifiantOrganisation,
+          detailsDepenses.flatMap((detail) =>
+            detail.lignes.map((ligne) => ligne.categorie),
+          ),
+        );
+      }
+
       if (
         reponse.ok &&
         statutReponse === "en_attente_signature" &&
@@ -766,6 +779,8 @@ export function FormulaireDepense({
         <LignesCategories
           idPrefixe={idPrefixe}
           categories={categoriesPourTypeEnvoi(typeEnvoi)}
+          restreindreAuxCourantes={!estAdmin}
+          identifiantOrganisation={identifiantOrganisation}
           lignes={detail.lignes}
           onChange={(lignes) => modifierDetailDepense(index, { lignes })}
           afficherErreurs={afficherErreursValidation}

@@ -1,11 +1,22 @@
 "use client";
 
-import { useCallback, useId, useState, type KeyboardEvent } from "react";
+import {
+  useCallback,
+  useId,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import {
   CATEGORIES_COMPTABLES,
   type CategorieComptable,
 } from "@/constants/configDepenses";
 import { FeuilleCategories } from "@/components/FeuilleCategories";
+import {
+  lireCategoriesRecentes,
+  ordonnerParRecence,
+} from "@/lib/categoriesRecentes";
+import { rechercherCategories } from "@/lib/rechercheCategories";
 import { useEstMobile } from "@/lib/useEstMobile";
 
 interface SelecteurCategorieProps {
@@ -19,10 +30,11 @@ interface SelecteurCategorieProps {
   readonly idErreur?: string;
   /** Liste des catégories proposées (dépenses par défaut). */
   readonly categories?: readonly CategorieComptable[];
+  /** Ne propose d'abord que les catégories courantes, avec « Afficher toutes les catégories ». */
+  readonly restreindreAuxCourantes?: boolean;
+  /** Groupe dont les catégories récemment utilisées sont proposées en premier. */
+  readonly identifiantOrganisation?: string;
 }
-
-const normaliser = (texte: string) =>
-  texte.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 // Sur ordinateur : liste déroulante avec recherche. Sur téléphone : le champ
 // ouvre une feuille plein écran (recherche + liste pleine largeur), car la
@@ -38,21 +50,39 @@ export function SelecteurCategorie({
   invalide = false,
   idErreur,
   categories = CATEGORIES_COMPTABLES,
+  restreindreAuxCourantes = false,
+  identifiantOrganisation,
 }: SelecteurCategorieProps) {
   const idListe = useId();
   const [ouvert, setOuvert] = useState(false);
   const [recherche, setRecherche] = useState("");
   const [indexActif, setIndexActif] = useState(0);
+  const [toutAfficher, setToutAfficher] = useState(false);
   const estMobile = useEstMobile();
 
-  const requete = normaliser(recherche);
-  const resultats = categories.filter(
-    (categorie) =>
-      !requete ||
-      normaliser(`${categorie.libelle} ${categorie.description}`).includes(
-        requete,
-      ),
+  // Lues à l'ouverture seulement : le stockage local n'existe pas côté serveur.
+  const recentes = useMemo(
+    () =>
+      ouvert && identifiantOrganisation
+        ? lireCategoriesRecentes(identifiantOrganisation)
+        : {},
+    [ouvert, identifiantOrganisation],
   );
+
+  const peutToutAfficher = restreindreAuxCourantes && !toutAfficher;
+  // La catégorie déjà choisie et les récentes restent toujours proposées.
+  const proposees = ordonnerParRecence(
+    peutToutAfficher
+      ? categories.filter(
+          (categorie) =>
+            categorie.courante ||
+            categorie.libelle === valeur ||
+            categorie.libelle in recentes,
+        )
+      : categories,
+    recentes,
+  );
+  const resultats = rechercherCategories(proposees, recherche);
   const idOption = (index: number) => `${idListe}-option-${index}`;
 
   const fermer = useCallback(() => {
@@ -111,6 +141,8 @@ export function SelecteurCategorie({
               resultats={resultats}
               onChoisir={choisir}
               onFermer={fermer}
+              peutToutAfficher={peutToutAfficher}
+              onToutAfficher={() => setToutAfficher(true)}
             />
           )}
         </>
@@ -152,7 +184,9 @@ export function SelecteurCategorie({
             >
               {resultats.length === 0 && (
                 <li className="p-3 text-sm text-zinc-500">
-                  Aucune catégorie trouvée
+                  {peutToutAfficher
+                    ? "Aucune catégorie courante trouvée"
+                    : "Aucune catégorie trouvée"}
                 </li>
               )}
               {resultats.map((categorie, index) => (
@@ -181,6 +215,22 @@ export function SelecteurCategorie({
                   )}
                 </li>
               ))}
+              {peutToutAfficher && (
+                <li role="presentation" className="p-2">
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    // mouseDown pour agir avant le blur du champ
+                    onMouseDown={(evenement) => {
+                      evenement.preventDefault();
+                      setToutAfficher(true);
+                    }}
+                    className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100"
+                  >
+                    Afficher toutes les catégories
+                  </button>
+                </li>
+              )}
             </ul>
           )}
         </div>

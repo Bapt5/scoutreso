@@ -14,6 +14,9 @@ interface FeuilleCategoriesProps {
   readonly resultats: readonly CategorieComptable[];
   readonly onChoisir: (categorie: string) => void;
   readonly onFermer: () => void;
+  /** Liste restreinte aux catégories courantes : affiche le bouton « Afficher toutes ». */
+  readonly peutToutAfficher?: boolean;
+  readonly onToutAfficher?: () => void;
 }
 
 // Feuille plein écran (téléphone) : recherche + liste pleine largeur. La page
@@ -26,6 +29,8 @@ export function FeuilleCategories({
   resultats,
   onChoisir,
   onFermer,
+  peutToutAfficher = false,
+  onToutAfficher,
 }: FeuilleCategoriesProps) {
   useEffect(() => {
     const overflowInitial = document.body.style.overflow;
@@ -74,7 +79,9 @@ export function FeuilleCategories({
       >
         {resultats.length === 0 && (
           <li className="p-4 text-sm text-zinc-500">
-            Aucune catégorie trouvée
+            {peutToutAfficher
+              ? "Aucune catégorie courante trouvée"
+              : "Aucune catégorie trouvée"}
           </li>
         )}
         {resultats.map((categorie) => {
@@ -109,6 +116,17 @@ export function FeuilleCategories({
           );
         })}
       </ul>
+      {peutToutAfficher && (
+        <div className="border-t border-zinc-200 p-3">
+          <button
+            type="button"
+            onClick={onToutAfficher}
+            className="w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
+          >
+            Afficher toutes les catégories
+          </button>
+        </div>
+      )}
     </div>,
     document.body,
   );

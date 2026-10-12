@@ -3,104 +3,158 @@ import type { CategorieComptable } from "@/constants/configDepenses";
 export const CATEGORIES_COMPTABLES_RECETTES: readonly CategorieComptable[] = [
   {
     libelle: "Autres subventions publiques",
-    description: "Autre organisme public dont la nature n'existe pas",
+    scope: ["recette"],
+    description: "Autres Organismes Publics dont la nature n'existe pas",
   },
   {
-    libelle: "CAF : autres Subventions CAF et Bons CAF",
+    libelle: "CAF : autres Subventions CAF, VACAF et Bons CAF",
+    scope: ["recette"],
     description:
-      "Uniquement les subventions (ex: Appel à projets) et les bons CAF",
+      "Uniquement les subventions (ex: Appel à projets) et les bons CAF (VACAF, Pass Colo)",
   },
   {
     libelle: "CAF : PSCAF",
+    scope: ["recette"],
     description:
-      "Exclusivement : Alsh extra scolaire PSCAF : Prestation de Service de la CAF -> voir avec le territoire / Centre de ressources",
+      "PSCAF : Prestation de Service de la CAF -> voir avec le territoire / Centre de ressources Si versé par le CR ==> Tiers National Si versé par le territoire ==> Tiers Territoire",
   },
   {
     libelle: "Cotisations SGDF",
+    scope: ["recette"],
     description:
-      "Uniquement les cotisations versées par tous les adhérents et prélevées par le national -> par tout moyen de règlement : chq, chq vacances, virt, paiement en ligne, espèces,... => y compris les frais de commission et frais adm ANCV, en montant négatif",
+      "Uniquement les cotisations versées par tous les adhérents et prélevées par le national Tout moyen de règlement : chq, chq vacances, virmt, paiement en ligne, espèces, CB (Terminal de Paiement) , y compris les frais de dossier (Lemonway) et frais adm ANCV, en montant négatif",
+  },
+  {
+    libelle: "Déduction commission paiement en ligne (-)",
+    scope: ["recette"],
+    description: "",
   },
   {
     libelle: "Dons avec Reçu Fiscal",
+    courante: true,
+    scope: ["recette"],
     description:
-      "Le don est un acte désintéressé, en aucun cas la participation de parents pour une activité de Scoutisme ne peut-être considérée comme un Don. Le montant doit être au minima celui que vous avez saisi dans intranet pour émission des RF aux familles et les dons en dehors de la période d'adhésion dont vous avez fait la demande au service donateur",
+      'Le don est un "acte désintéressé", en aucun cas la participation de parents pour une activité de Scoutisme ne peut-être considérée comme un Don. Le montant doit être au minima celui que vous avez saisi dans intranet pour émission des reçus fiscaux aux familles et les dons en dehors de la période d\'adhésion dont vous avez fait la demande au service donateur.',
   },
   {
     libelle: "Dons, calendriers (sans reçu fiscal)",
+    courante: true,
+    scope: ["recette"],
     description:
       "Toutes les sommes versées par des particuliers qui ne donnent pas lieu à un reçu fiscal (calendriers, dons dans le cas où un reçu n'est pas demandé)",
   },
   {
     libelle: "Extra-Jobs",
+    courante: true,
+    scope: ["recette"],
     description:
-      "Toutes les sommes reçues lors des extra-Job des Pionniers-Caravelles ou des Compagnons. => N'oubliez pas de consulter la fiche https://chefscadres.sgdf.fr/ressources/#/explore/file/1427/ => L'extra-job ne doit pas pouvoir être requalifié par la loi comme une activité commerciale (achat sans transformation pour revente interdit) ou une activité salariale (lien de subordination)",
+      "Toutes les sommes reçues lors des extra-Jobs des Pionniers-Caravelles ou des Compagnons. => Consultez la fiche https://chefscadres.sgdf.fr/ressources/#/explore/file/1427/ => L'extra-job ne doit pas pouvoir être requalifié par la loi comme une activité commerciale (achat sans transformation pour revente interdit) ou une activité salariale (lien de subordination). /!\\ L'extra-Job ne permet pas l'édition d'un reçu fiscal.",
   },
   {
     libelle:
-      "Flux financiers entre structures (SAUF la participation aux activités)",
+      "Flux financiers entre structures (SAUF Particip. Activités Camp WE...)",
+    scope: ["recette"],
     description:
-      "Transfert de fond entre : un territoire et un groupe // un groupe de mon territoire // un groupe hors de mon territoire // national et un groupe ou territoire SAUF pour les participations aux activités camp, WE, ... sauf si la nature existe : reversement de subvention, subvention municipale, formation, ...",
+      "Transfert de fond entre : Un territoire et un groupe // Un groupe de mon territoire //Un groupe hors de mon territoire // National et un groupe ou territoire / Ex : aide d'un territoire à un autre, FSI reçu du national NE PAS UTILISER POUR les participations aux activités camp, WE, ... VERIFIER que la nature n'existe pas avant d'utiliser les \"Flux Financiers\"",
   },
   {
     libelle: "Formation",
-    description: "Formation des chefs et responsables",
-  },
-  { libelle: "Locations/Mise à disposition de Matériel", description: "" },
-  { libelle: "Mise à disposition Bases", description: "" },
-  {
-    libelle: "Participation Activités",
+    scope: ["recette"],
     description:
-      "Tous les versements correspondant à la participations aux activités SGDF (WE, journée, mini-camps et les camps d'été, ...) -> par tout moyen de règlement : chq, chq vacances, virt, paiement en ligne en début année, y compris les frais de commission et frais adm ANCV, en montant négatif",
+      "Participation des stagiaires aux frais de formations interne (SGDF) ou externe",
   },
   {
-    libelle: "Participation frais de Fonctionnement",
+    libelle: "Locations/Mise à disposition de Matériel",
+    courante: true,
+    scope: ["recette"],
+    description: "",
+  },
+  { libelle: "Mise à disposition Bases", scope: ["recette"], description: "" },
+  {
+    libelle: "Participation Activités (camp, we...)",
+    courante: true,
+    scope: ["recette"],
+    description:
+      "Tous les versements correspondant à la participations aux activités SGDF (WE, journée, mini-camps et les camps d'été, participation à un événement territorial, AG, Assemblée ou Conseil Territorial...) , recette ou dépense -> par tout moyen de règlement : chq, chq vacances, virmt, paiement en ligne en début année, y compris les frais de dossier et frais adm ANCV (en montant négatif)",
+  },
+  {
+    libelle: "Participation familles aux frais de fonctionnement",
+    courante: true,
+    scope: ["recette"],
     description:
       "Participation des familles au fonctionnement du groupe lors de l'Adhésion",
   },
-  { libelle: "Produits financiers bancaires", description: "" },
-  { libelle: "Recettes diverses", description: "" },
   {
-    libelle: "Refacturation médecins, pharmaciens",
-    description:
-      "Remboursement des frais avancés pour une consultation chez le médecin",
-  },
-  {
-    libelle: "Subvention Associations (paroisse, diocèse, Rotary…)",
+    libelle: "Produits financiers bancaires",
+    scope: ["recette"],
     description: "",
   },
   {
-    libelle: "Subvention Autres organismes Sociaux (MSA, …)",
+    libelle: "Recettes diverses",
+    scope: ["recette"],
+    description: "A n'utiliser uniquement si la nature n'existe pas",
+  },
+  {
+    libelle: "Refacturation médecins, pharmaciens",
+    courante: true,
+    scope: ["recette"],
+    description:
+      "Remboursement des frais médicaux avancés (Medecins, Pharmacie, ...) par les familles",
+  },
+  {
+    libelle: "Subvention Associations (paroisse, diocèse, Rotary, ...)",
+    scope: ["recette"],
+    description: "",
+  },
+  {
+    libelle: "Subvention Autres organismes Sociaux (MSA, ...)",
+    scope: ["recette"],
     description:
       "Subventions accordées par la Mutualité sociale agricole, autre que les bons vacances.",
   },
   {
     libelle: "Subvention Département",
-    description: "Subventions départementales",
+    scope: ["recette"],
+    description: "Subventions Départementales",
   },
   {
     libelle: "Subvention Jeunesse et Sport",
+    scope: ["recette"],
     description: "Subventions Jeunesse et Sport",
   },
-  { libelle: "Subvention Municipale", description: "Subventions municipales" },
+  {
+    libelle: "Subvention Municipale",
+    scope: ["recette"],
+    description: "Subventions Municipales",
+  },
   {
     libelle:
       "Subvention Organismes Privés (Entreprises, Fondation d'entreprises,...)",
+    scope: ["recette"],
     description: "",
   },
-  { libelle: "Subvention Région", description: "Subventions régionales" },
+  {
+    libelle: "Subvention Région",
+    scope: ["recette"],
+    description: "Subventions régionales",
+  },
   {
     libelle: "Subventions Internationales (hors France)",
-    description: "Ex. : subvention versée par des organismes européens.",
+    scope: ["recette"],
+    description: "Subvention versée par des organismes Européens",
   },
   {
     libelle: "Taxe de séjour",
+    scope: ["recette"],
     description:
-      "La taxe de séjour doit être soldée à la fin de chaque exercice.",
+      "Uniquement pour les structures (territoires) qui ont des bases et qui doivent déclarer la taxe de séjour",
   },
   {
     libelle: "Vente article boutique",
+    courante: true,
+    scope: ["recette"],
     description:
-      "Revente des articles de la boutique du scoutisme aux familles et autre (lumière de Bethléem, ...)",
+      "Revente d'articles de la Boutique du Scoutisme aux familles et autre (chemises, bougies Lumière de Bethléem, ...)",
   },
 ];
 

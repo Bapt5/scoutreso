@@ -311,6 +311,7 @@ describe("FormulaireRecette : poste budgétaire", () => {
         postesBudgetaires={postes}
         aTresorier
         estEnLigne
+        estAdmin
       />,
     );
 

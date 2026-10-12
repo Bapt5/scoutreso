@@ -70,6 +70,6 @@ La base de données est hébergée à Francfort et les e-mails sont envoyés dep
 ## Cookies et traceurs
 
 - Un **cookie de session** est déposé à la connexion : il est strictement nécessaire au fonctionnement du service et ne demande donc pas votre consentement.
-- Le navigateur garde, sur votre appareil seulement, quelques préférences (année comptable choisie, avis de nouveauté déjà vu, retour après invitation). Elles ne sont jamais envoyées à un tiers.
+- Le navigateur garde, sur votre appareil seulement, quelques préférences (année comptable choisie, catégories comptables récemment utilisées, avis de nouveauté déjà vu, retour après invitation). Elles ne sont jamais envoyées à un tiers.
 - L'application installable (PWA) met en cache uniquement des fichiers statiques, jamais vos pages ni vos données.
 - Aucun outil de mesure d'audience, de publicité ou de réseau social n'est actif : il n'y a donc pas de bandeau de consentement aux cookies.

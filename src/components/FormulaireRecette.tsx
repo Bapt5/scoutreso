@@ -22,6 +22,7 @@ import {
   type DetailSaisieRecette,
 } from "@/lib/recettes";
 import { LignesCategories } from "@/components/LignesCategories";
+import { memoriserCategoriesRecentes } from "@/lib/categoriesRecentes";
 import { SelecteurPosteBudgetaire } from "@/components/SelecteurPosteBudgetaire";
 import type { PosteBudgetaire } from "@/lib/budget";
 import { CapturePhoto } from "@/components/PhotoCapture";
@@ -38,6 +39,10 @@ interface FormulaireRecetteProps {
   readonly estEnLigne: boolean;
   /** Recadrage automatique de la pièce jointe avec Scanic (paramètre du groupe). */
   readonly scanActive?: boolean;
+  /** Owner/admin du groupe : toutes les catégories sont proposées d'emblée. */
+  readonly estAdmin?: boolean;
+  /** Groupe courant : sert à mémoriser les catégories récemment utilisées. */
+  readonly identifiantOrganisation?: string;
 }
 
 export function FormulaireRecette({
@@ -49,6 +54,8 @@ export function FormulaireRecette({
   onChangementUnite,
   estEnLigne,
   scanActive,
+  estAdmin = false,
+  identifiantOrganisation,
 }: Readonly<FormulaireRecetteProps>) {
   const [branche, setBranche] = useState(uniteInitiale);
   const [detail, setDetail] = useState<DetailSaisieRecette>(
@@ -136,6 +143,12 @@ export function FormulaireRecette({
       }
 
       if (reponse.ok) {
+        if (identifiantOrganisation) {
+          memoriserCategoriesRecentes(
+            identifiantOrganisation,
+            detail.lignes.map((ligne) => ligne.categorie),
+          );
+        }
         setStatutEnvoi({
           type: "succes",
           message:
@@ -258,6 +271,8 @@ export function FormulaireRecette({
         }
         afficherErreurs={afficherErreursValidation}
         categories={CATEGORIES_COMPTABLES_RECETTES}
+        restreindreAuxCourantes={!estAdmin}
+        identifiantOrganisation={identifiantOrganisation}
       />
 
       <div className="space-y-2">
