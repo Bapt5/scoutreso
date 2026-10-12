@@ -62,6 +62,10 @@ export interface DonneesKilometrage {
 export const TYPES_ENVOI = ["note-de-frais", "depense-groupe"] as const;
 export type TypeEnvoi = (typeof TYPES_ENVOI)[number];
 
+/** Types d'envoi de recette (un seul pour l'instant), distincts de ceux des dépenses. */
+export const TYPES_ENVOI_RECETTE = ["recette"] as const;
+export type TypeEnvoiRecette = (typeof TYPES_ENVOI_RECETTE)[number];
+
 export const LIBELLES_TYPES_ENVOI: Record<TypeEnvoi, string> = {
   "note-de-frais": "Note de frais",
   "depense-groupe": "Dépense avec moyen de paiement du groupe",

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CATEGORIES_COMPTABLES,
   categoriesPourTypeEnvoi,
   LIBELLES_CATEGORIES_COMPTABLES,
 } from "@/constants/configDepenses";
@@ -40,6 +41,12 @@ describe("categoriesPourTypeEnvoi", () => {
     expect(libelles("note-de-frais")).toContain("Formation");
     expect(libelles("depense-groupe")).toContain("Formation");
     expect(libelles("depense-groupe")).toContain("Carburant");
+  });
+
+  it("donne à chaque catégorie un scope sans doublon", () => {
+    for (const categorie of CATEGORIES_COMPTABLES) {
+      expect(new Set(categorie.scope).size).toBe(categorie.scope.length);
+    }
   });
 
   it("classe 1 catégorie NDF seule, 23 groupe seul et 23 communes", () => {
