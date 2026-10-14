@@ -72,7 +72,7 @@ describe("depenses", () => {
     ).toBe("NDF");
   });
 
-  it("ventile le total par catégorie sur tous les justificatifs", () => {
+  it("liste chaque ligne sans fusionner les catégories identiques", () => {
     expect(
       ventilerParCategorie([
         detailDepense({
@@ -86,8 +86,9 @@ describe("depenses", () => {
         }),
       ]),
     ).toEqual([
-      { categorie: "Carburant", montant: 10.3 },
+      { categorie: "Carburant", montant: 10.1 },
       { categorie: "Péage-Parking", montant: 5 },
+      { categorie: "Carburant", montant: 0.2 },
     ]);
   });
 

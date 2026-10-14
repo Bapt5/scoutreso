@@ -13,10 +13,13 @@ import {
 } from "@/constants/piecesJointes";
 import {
   CATEGORIES_COMPTABLES_RECETTES,
+  MOYEN_PAIEMENT_ANCV,
   MOYENS_PAIEMENT_RECETTE,
 } from "@/constants/configRecettes";
 import { analyserMontantSaisi, totalLignes } from "@/lib/depenses";
 import {
+  changerLignesRecette,
+  choisirModePaiementRecette,
   detailSaisieRecetteComplet,
   detailSaisieRecetteVide,
   type DetailSaisieRecette,
@@ -233,6 +236,8 @@ export function FormulaireRecette({
               <label
                 key={moyen}
                 className={`cursor-pointer rounded-lg border p-2 text-center text-sm font-medium transition-colors ${
+                  moyen === MOYEN_PAIEMENT_ANCV ? "col-span-2" : ""
+                } ${
                   selectionne
                     ? "border-zinc-900 bg-zinc-900 text-white"
                     : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50"
@@ -244,10 +249,9 @@ export function FormulaireRecette({
                   value={moyen}
                   checked={selectionne}
                   onChange={() =>
-                    setDetail((precedent) => ({
-                      ...precedent,
-                      modePaiement: moyen,
-                    }))
+                    setDetail((precedent) =>
+                      choisirModePaiementRecette(precedent, moyen),
+                    )
                   }
                   className="sr-only"
                 />
@@ -256,6 +260,12 @@ export function FormulaireRecette({
             );
           })}
         </div>
+        {detail.fraisAncvAuto && (
+          <p className="text-sm text-zinc-600">
+            Frais de 2,5 % calculés sur la première ligne ; vous pouvez modifier
+            ou supprimer la ligne de frais.
+          </p>
+        )}
         {afficherErreursValidation && !detail.modePaiement && (
           <p className="text-sm text-rose-700">
             Sélectionnez un mode de paiement.
@@ -267,7 +277,7 @@ export function FormulaireRecette({
         idPrefixe="recette"
         lignes={detail.lignes}
         onChange={(lignes) =>
-          setDetail((precedent) => ({ ...precedent, lignes }))
+          setDetail((precedent) => changerLignesRecette(precedent, lignes))
         }
         afficherErreurs={afficherErreursValidation}
         categories={CATEGORIES_COMPTABLES_RECETTES}

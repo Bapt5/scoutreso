@@ -167,6 +167,11 @@ export const MOYENS_PAIEMENT_RECETTE = [
   "Chèque",
   "Liquide",
   "Carte bancaire",
+  "ANCV (2,5 %)",
 ] as const;
+
+export const MOYEN_PAIEMENT_ANCV = "ANCV (2,5 %)";
+export const TAUX_FRAIS_ANCV = 0.025;
+export const CATEGORIE_ANCV = "Cotisations SGDF";
 
 export type MoyenPaiementRecette = (typeof MOYENS_PAIEMENT_RECETTE)[number];

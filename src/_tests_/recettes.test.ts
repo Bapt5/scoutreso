@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  changerLignesRecette,
+  choisirModePaiementRecette,
+  fraisAncv,
   detailSaisieRecetteComplet,
   detailSaisieRecetteVide,
   versDetailRecette,
@@ -26,6 +29,7 @@ const detailSaisie = (
   description: "",
   lignes: [{ categorie: "Cotisations SGDF", montant: "45" }],
   posteBudgetaireId: "",
+  fraisAncvAuto: false,
   ...modification,
 });
 
@@ -92,5 +96,64 @@ describe("recettes", () => {
       description: "",
       lignes: [{ categorie: "Cotisations SGDF", montant: 12.5 }],
     });
+  });
+});
+
+describe("mode de paiement ANCV", () => {
+  const ancv = () =>
+    choisirModePaiementRecette(detailSaisieRecetteVide(), "ANCV (2,5 %)");
+
+  it("calcule 2,5 % négatif arrondi au centime", () => {
+    expect(fraisAncv("100")).toBe("-2.5");
+    expect(fraisAncv("33,33")).toBe("-0.83");
+    expect(fraisAncv("")).toBe("");
+    expect(fraisAncv("0")).toBe("");
+  });
+
+  it("remplace les lignes par deux lignes Cotisations SGDF", () => {
+    const detail = ancv();
+    expect(detail.fraisAncvAuto).toBe(true);
+    expect(detail.lignes).toEqual([
+      { categorie: "Cotisations SGDF", montant: "" },
+      { categorie: "Cotisations SGDF", montant: "" },
+    ]);
+  });
+
+  it("recalcule les frais tant que la ligne n'est pas modifiée", () => {
+    const detail = ancv();
+    const suivant = changerLignesRecette(detail, [
+      { ...detail.lignes[0], montant: "200" },
+      detail.lignes[1],
+    ]);
+    expect(suivant.lignes[1].montant).toBe("-5");
+    expect(suivant.fraisAncvAuto).toBe(true);
+  });
+
+  it("fige la ligne de frais après modification manuelle", () => {
+    const detail = ancv();
+    const fige = changerLignesRecette(detail, [
+      detail.lignes[0],
+      { ...detail.lignes[1], montant: "-1" },
+    ]);
+    expect(fige.fraisAncvAuto).toBe(false);
+    const apres = changerLignesRecette(fige, [
+      { ...fige.lignes[0], montant: "200" },
+      fige.lignes[1],
+    ]);
+    expect(apres.lignes[1].montant).toBe("-1");
+  });
+
+  it("retire la ligne de frais auto en quittant ANCV", () => {
+    const detail = choisirModePaiementRecette(ancv(), "Virement");
+    expect(detail.lignes).toHaveLength(1);
+    expect(detail.fraisAncvAuto).toBe(false);
+  });
+
+  it("garde les lignes en quittant ANCV si les frais ont été modifiés", () => {
+    const detail = ancv();
+    const fige = changerLignesRecette(detail, [detail.lignes[0]]);
+    const quitte = choisirModePaiementRecette(fige, "Chèque");
+    expect(quitte.lignes).toHaveLength(1);
+    expect(quitte.modePaiement).toBe("Chèque");
   });
 });
