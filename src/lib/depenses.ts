@@ -126,25 +126,19 @@ export const versDepenseNomenclature = (
   };
 };
 
-// Total par catégorie comptable sur tous les justificatifs, dans l'ordre de
-// première apparition.
+// Détail par catégorie comptable sur tous les justificatifs, dans l'ordre de
+// saisie. Les lignes de même intitulé ne sont jamais fusionnées.
 export const ventilerParCategorie = (
   details: readonly {
     lignes: readonly Pick<LigneDepense, "categorie" | "montant">[];
   }[],
-) => {
-  const totaux = new Map<string, number>();
-  for (const ligne of details.flatMap((detail) => detail.lignes)) {
-    totaux.set(
-      ligne.categorie,
-      (totaux.get(ligne.categorie) ?? 0) + ligne.montant,
-    );
-  }
-  return [...totaux].map(([categorie, montant]) => ({
-    categorie,
-    montant: totalLignes([{ montant }]),
-  }));
-};
+) =>
+  details
+    .flatMap((detail) => detail.lignes)
+    .map(({ categorie, montant }) => ({
+      categorie,
+      montant: totalLignes([{ montant }]),
+    }));
 
 // ─── Kilomètres ───
 

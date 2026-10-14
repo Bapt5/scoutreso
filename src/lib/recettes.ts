@@ -1,4 +1,9 @@
 import type { DetailRecette, LigneRecette } from "@/constants/piecesJointes";
+import {
+  CATEGORIE_ANCV,
+  MOYEN_PAIEMENT_ANCV,
+  TAUX_FRAIS_ANCV,
+} from "@/constants/configRecettes";
 import type { DepenseNomenclature } from "@/lib/nomenclature";
 import {
   analyserMontantSaisi,
@@ -20,6 +25,8 @@ export interface DetailSaisieRecette {
   lignes: LigneSaisie[];
   /** Poste budgétaire choisi (vide tant qu'aucun poste n'est sélectionné). */
   posteBudgetaireId: string;
+  /** Vrai tant que la ligne de frais ANCV (2e ligne) est calculée automatiquement. */
+  fraisAncvAuto: boolean;
 }
 
 export const detailSaisieRecetteVide = (): DetailSaisieRecette => ({
@@ -28,7 +35,67 @@ export const detailSaisieRecetteVide = (): DetailSaisieRecette => ({
   description: "",
   lignes: [{ categorie: "", montant: "" }],
   posteBudgetaireId: "",
+  fraisAncvAuto: false,
 });
+
+// Frais ANCV : montant négatif égal à 2,5 % de la première ligne (arrondi au
+// centime), vide tant que ce montant n'est pas exploitable.
+export const fraisAncv = (montantPremiereLigne: string) => {
+  const montant = analyserMontantSaisi(montantPremiereLigne);
+  if (!Number.isFinite(montant) || montant === 0) return "";
+  const centimes = Math.round(Math.abs(montant) * TAUX_FRAIS_ANCV * 100);
+  return centimes === 0 ? "" : String((-Math.sign(montant) * centimes) / 100);
+};
+
+// Choix du mode de paiement : ANCV remplace les lignes par « Cotisations SGDF »
+// (montant vide) et sa ligne de frais ; quitter ANCV retire la ligne de frais
+// si elle n'a pas été modifiée à la main.
+export const choisirModePaiementRecette = (
+  detail: DetailSaisieRecette,
+  modePaiement: string,
+): DetailSaisieRecette => {
+  if (modePaiement === detail.modePaiement) return detail;
+  if (modePaiement === MOYEN_PAIEMENT_ANCV) {
+    return {
+      ...detail,
+      modePaiement,
+      fraisAncvAuto: true,
+      lignes: [
+        { categorie: CATEGORIE_ANCV, montant: "" },
+        { categorie: CATEGORIE_ANCV, montant: "" },
+      ],
+    };
+  }
+  if (detail.fraisAncvAuto) {
+    return {
+      ...detail,
+      modePaiement,
+      fraisAncvAuto: false,
+      lignes: detail.lignes.slice(0, 1),
+    };
+  }
+  return { ...detail, modePaiement };
+};
+
+// Édition des lignes : la ligne de frais ANCV suit la première tant qu'elle n'a
+// pas été touchée (modification, suppression ou ajout de ligne la fige).
+export const changerLignesRecette = (
+  detail: DetailSaisieRecette,
+  lignes: LigneSaisie[],
+): DetailSaisieRecette => {
+  if (!detail.fraisAncvAuto) return { ...detail, lignes };
+  const intacte =
+    lignes.length === detail.lignes.length &&
+    lignes.slice(1).every((ligne, i) => ligne === detail.lignes[i + 1]);
+  if (!intacte) return { ...detail, lignes, fraisAncvAuto: false };
+  return {
+    ...detail,
+    lignes: [
+      lignes[0],
+      { ...lignes[1], montant: fraisAncv(lignes[0].montant) },
+    ],
+  };
+};
 
 export const detailSaisieRecetteComplet = (detail: DetailSaisieRecette) =>
   Boolean(detail.date) &&

@@ -47,9 +47,9 @@ La trésorerie reçoit l’e-mail avec les pièces jointes et vous recevez une c
 
 ## Signaler une recette
 
-Depuis l’onglet **Recettes** de la page d’accueil, signalez un encaissement à venir (virement, chèque, liquide ou carte bancaire) : contrairement à une dépense, **aucun justificatif n’est obligatoire**.
+Depuis l’onglet **Recettes** de la page d’accueil, signalez un encaissement à venir (virement, chèque, liquide, carte bancaire ou chèques vacances ANCV) : contrairement à une dépense, **aucun justificatif n’est obligatoire**.
 
-Renseignez la **date de la recette**, le **mode de paiement**, une ou plusieurs lignes « montant + catégorie comptable » (fonctionnement identique aux dépenses), une **description** si elle est utile et, si vous le souhaitez, un **justificatif (optionnel)** (par exemple une photo du chèque). Choisissez l’unité puis envoyez : la trésorerie reçoit l’e-mail et vous recevez une copie.
+Renseignez la **date de la recette**, le **mode de paiement**, une ou plusieurs lignes « montant + catégorie comptable » (fonctionnement identique aux dépenses), une **description** si elle est utile et, si vous le souhaitez, un **justificatif (optionnel)** (par exemple une photo du chèque). Avec le mode **ANCV (2,5 %)**, deux lignes « Cotisations SGDF » sont préremplies : la première est à compléter, la seconde reprend les frais ANCV (montant négatif égal à 2,5 % de la première, recalculé tant que vous ne la modifiez pas). Vous pouvez modifier ou supprimer cette ligne. Choisissez l’unité puis envoyez : la trésorerie reçoit l’e-mail et vous recevez une copie.
 
 ## Mode hors ligne
 

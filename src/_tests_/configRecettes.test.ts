@@ -17,12 +17,13 @@ describe("configRecettes", () => {
     );
   });
 
-  it("propose une liste fixe de 4 moyens de paiement", () => {
+  it("propose une liste fixe de 5 moyens de paiement", () => {
     expect(MOYENS_PAIEMENT_RECETTE).toEqual([
       "Virement",
       "Chèque",
       "Liquide",
       "Carte bancaire",
+      "ANCV (2,5 %)",
     ]);
   });
 });
