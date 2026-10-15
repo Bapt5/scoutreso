@@ -321,6 +321,57 @@ export async function prochainOrdreSignataire(
   return Number(resultat.rows[0]?.prochain ?? 1);
 }
 
+/**
+ * Synchronise les effets annexes d'un changement de rôle : notifications
+ * trésorerie (rôle owner) et circuit de signature des notes de frais.
+ * Sortie définitive si le membre n'est plus responsable ni trésorier, ajout
+ * en fin de liste s'il le devient (nouvelle entrée ou changement de
+ * catégorie admin <-> owner, pour éviter un rang dupliqué avec un
+ * signataire déjà présent dans la nouvelle catégorie). `ancienRole` vaut
+ * `null` pour un nouveau membre (acceptation d'une invitation).
+ */
+export async function synchroniserEffetsRole(
+  executeur: { query: typeof pool.query },
+  identifiantUtilisateur: string,
+  identifiantOrganisation: string,
+  ancienRole: string | null,
+  nouveauRole: string,
+) {
+  if (ancienRole === "owner" && nouveauRole !== "owner")
+    await executeur.query(
+      `DELETE FROM scouticket_notification_tresorerie
+        WHERE user_id = $1 AND organization_id = $2`,
+      [identifiantUtilisateur, identifiantOrganisation],
+    );
+  else if (ancienRole !== "owner" && nouveauRole === "owner")
+    await executeur.query(
+      `INSERT INTO scouticket_notification_tresorerie (user_id, organization_id)
+       VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
+      [identifiantUtilisateur, identifiantOrganisation],
+    );
+
+  if (estResponsable(ancienRole) && !estResponsable(nouveauRole))
+    await executeur.query(
+      `DELETE FROM scouticket_signataires
+        WHERE user_id = $1 AND organization_id = $2`,
+      [identifiantUtilisateur, identifiantOrganisation],
+    );
+  else if (estResponsable(nouveauRole) && ancienRole !== nouveauRole) {
+    const ordre = await prochainOrdreSignataire(
+      executeur,
+      identifiantOrganisation,
+      nouveauRole as "admin" | "owner",
+    );
+    await executeur.query(
+      `INSERT INTO scouticket_signataires (organization_id, user_id, ordre)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (organization_id, user_id) DO UPDATE SET ordre = EXCLUDED.ordre`,
+      [identifiantOrganisation, identifiantUtilisateur, ordre],
+    );
+  }
+}
+
 /** Unités qu'un membre simple est explicitement autorisé à utiliser. */
 export async function recupererUnitesAutoriseesMembre(
   identifiantUtilisateur: string,

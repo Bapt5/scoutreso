@@ -436,4 +436,46 @@ describe("GestionAccesUniteMembre", () => {
     ).not.toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("en mode invitation, enregistre rôle et unités en une requête sans bouton de retrait", async () => {
+    const utilisateur = userEvent.setup();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        reponseUnites({
+          accesTotal: false,
+          unites,
+          uniteIdsAutorisees: ["farfadets"],
+        }),
+      )
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <GestionAccesUniteMembre
+        membre={{ ...membre, id: "inv_1", nom: "" }}
+        {...proprietesParDefaut}
+        modeInvitation
+      />,
+    );
+
+    await utilisateur.click(
+      await screen.findByRole("button", { name: "Groupe" }),
+    );
+    expect(
+      screen.queryByRole("button", { name: "Retirer l’utilisateur" }),
+    ).not.toBeInTheDocument();
+    await utilisateur.click(
+      screen.getByRole("button", { name: /Enregistrer les modifications/ }),
+    );
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock.mock.calls[0][0]).toBe("/api/group/invitations/inv_1");
+    const [url, options] = fetchMock.mock.calls[1];
+    expect(url).toBe("/api/group/invitations/inv_1");
+    expect(options.method).toBe("PATCH");
+    const corps = JSON.parse(options.body);
+    expect(corps.role).toBe("member");
+    expect(corps.uniteIds.sort()).toEqual(["farfadets", "groupe"]);
+  });
 });

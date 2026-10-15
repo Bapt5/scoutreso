@@ -47,7 +47,9 @@ Décochez la personnalisation pour revenir au nom du fichier importé. Dans les 
 
 ## Inviter les membres
 
-Depuis **Administration**, choisissez **Gérer les membres** et saisissez son adresse e-mail. Better Auth lui envoie une invitation ; après l’avoir acceptée, cette personne rejoint le groupe et peut envoyer ses justificatifs. La liste **Utilisateurs** réunit les membres du groupe et les invitations encore en attente d’acceptation. Une invitation en attente peut être annulée.
+Depuis **Administration**, choisissez **Gérer les membres** et saisissez son adresse e-mail. Better Auth lui envoie une invitation ; après l’avoir acceptée, cette personne rejoint le groupe et peut envoyer ses justificatifs. La liste **Utilisateurs** réunit les membres du groupe et les invitations encore en attente d’acceptation. Une invitation en attente peut être annulée ; une invitation refusée reste affichée avec la mention « Refusée » jusqu’à ce qu’un responsable la supprime.
+
+En cliquant sur l’adresse d’une invitation en attente, un responsable peut définir à l’avance le rôle (Membre, Responsable de groupe ou Trésorier, avec les mêmes règles que pour un membre) et, pour un Membre, les unités accessibles. Ils sont appliqués automatiquement dès que la personne accepte l’invitation. Les unités prévues sont conservées tant que l’invitation est en attente (y compris expirée, pour pouvoir la renvoyer) et sont effacées à l’acceptation, au refus ou à l’annulation.
 
 ![Liste des utilisateurs et invitations en attente](/guide/gestion-membres-utilisateurs.png)
 

@@ -12,6 +12,8 @@ type Invitation = {
   role: string;
   expiresAt: string | Date;
   expiree: boolean;
+  statut: "pending" | "rejected";
+  nombreUnites: number;
 };
 type Membre = {
   id: string;
@@ -19,7 +21,14 @@ type Membre = {
   email: string;
   role: string;
   recoitNotifications: boolean;
+  nombreUnites: number;
 };
+
+/** Résumé des accès : un responsable a toujours accès à toutes les unités. */
+function resumeAcces(role: string, nombreUnites: number) {
+  if (role === "admin" || role === "owner") return "Toutes les unités";
+  return `${nombreUnites} unité${nombreUnites > 1 ? "s" : ""}`;
+}
 
 function traduireMessageErreurInvitation(erreur: unknown) {
   const code =
@@ -58,6 +67,8 @@ export default function PageGestionMembres() {
   const [membres, setMembres] = useState<Membre[]>([]);
   const [renvoiEnCours, setRenvoiEnCours] = useState<string>();
   const [membreSelectionne, setMembreSelectionne] = useState<Membre>();
+  const [invitationSelectionnee, setInvitationSelectionnee] =
+    useState<Invitation>();
   const [moi, setMoi] = useState<{ id: string; role: string }>();
   const chargementLance = useRef(false);
   const chargerMembres = useCallback(async () => {
@@ -109,6 +120,8 @@ export default function PageGestionMembres() {
           .map((invitation) => ({
             ...invitation,
             expiree: false,
+            statut: "pending",
+            nombreUnites: 0,
           })) as Invitation[]),
         ...precedentes,
       ]);
@@ -135,6 +148,19 @@ export default function PageGestionMembres() {
       setInvitations((precedentes) =>
         precedentes.filter((invitation) => invitation.id !== invitationId),
       );
+  };
+  const supprimerInvitationRefusee = async (invitationId: string) => {
+    const reponse = await fetch(`/api/group/invitations/${invitationId}`, {
+      method: "DELETE",
+    });
+    if (!reponse.ok) {
+      setMessage("Impossible de supprimer cette invitation.");
+      return;
+    }
+    setMessage("Invitation supprimée.");
+    setInvitations((precedentes) =>
+      precedentes.filter((invitation) => invitation.id !== invitationId),
+    );
   };
   const renvoyerInvitation = async (invitationId: string) => {
     setRenvoiEnCours(invitationId);
@@ -218,6 +244,10 @@ export default function PageGestionMembres() {
         <h2 className="mt-8 text-lg font-semibold text-zinc-900">
           Utilisateurs
         </h2>
+        <p className="mt-1 text-sm text-zinc-500">
+          Cliquez sur un utilisateur pour modifier son rôle et ses accès aux
+          unités.
+        </p>
         {membres.length === 0 && invitations.length === 0 ? (
           <p className="mt-2 text-sm text-zinc-600">
             Aucun utilisateur dans ce groupe.
@@ -241,57 +271,117 @@ export default function PageGestionMembres() {
                       </span>
                     )}
                   </span>
-                  <span className="shrink-0 text-zinc-600">
-                    {libelleRole(membre.role)}
+                  <span className="shrink-0 text-right">
+                    <span className="block text-zinc-600">
+                      {libelleRole(membre.role)}
+                    </span>
+                    <span className="block text-xs text-zinc-500">
+                      {resumeAcces(membre.role, membre.nombreUnites)}
+                    </span>
                   </span>
                 </button>
               </li>
             ))}
-            {invitations.map((invitation) => (
-              <li
-                key={invitation.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 text-sm"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-zinc-700">
+            {invitations.map((invitation) =>
+              invitation.statut === "rejected" ? (
+                <li
+                  key={invitation.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 text-sm"
+                >
+                  <span className="min-w-0 truncate text-zinc-700">
                     {invitation.email}
                   </span>
-                  <span className="block text-xs text-zinc-500">
-                    {invitation.expiree
-                      ? "Expirée"
-                      : ` Expire le ${new Intl.DateTimeFormat("fr-FR", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        }).format(new Date(invitation.expiresAt))}`}
+                  <span className="flex shrink-0 items-center gap-3">
+                    <span className="text-red-700">Refusée</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void supprimerInvitationRefusee(invitation.id)
+                      }
+                      className="text-[#1E3A8A] underline"
+                    >
+                      Supprimer
+                    </button>
                   </span>
-                </span>
-                <span className="flex shrink-0 items-center gap-3">
-                  <span className="text-zinc-500">
-                    {invitation.expiree ? "Expirée" : "En attente"}
-                  </span>
+                </li>
+              ) : (
+                <li
+                  key={invitation.id}
+                  className="relative flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 text-sm transition-colors hover:bg-zinc-50"
+                >
+                  {/* Le pseudo-élément étend la zone cliquable à toute la ligne ; les actions restent au-dessus (z-10). */}
                   <button
                     type="button"
-                    disabled={renvoiEnCours === invitation.id}
-                    onClick={() => void renvoyerInvitation(invitation.id)}
-                    className="text-[#1E3A8A] underline disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => setInvitationSelectionnee(invitation)}
+                    aria-label={`Définir le rôle et les unités de ${invitation.email}`}
+                    className="min-w-0 text-left after:absolute after:inset-0 after:content-['']"
                   >
-                    {renvoiEnCours === invitation.id
-                      ? "Renvoi…"
-                      : "Renvoyer l’invitation"}
+                    <span className="block truncate text-zinc-700">
+                      {invitation.email}
+                    </span>
+                    <span className="block text-xs text-zinc-500">
+                      {libelleRole(invitation.role)} ·{" "}
+                      {resumeAcces(invitation.role, invitation.nombreUnites)}
+                    </span>
+                    <span className="block text-xs text-zinc-500">
+                      {invitation.expiree
+                        ? "Expirée"
+                        : `Expire le ${new Intl.DateTimeFormat("fr-FR", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          }).format(new Date(invitation.expiresAt))}`}
+                    </span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => void annulerInvitation(invitation.id)}
-                    className="text-[#1E3A8A] underline"
-                  >
-                    Annuler
-                  </button>
-                </span>
-              </li>
-            ))}
+                  <span className="relative z-10 flex shrink-0 items-center gap-3">
+                    <span className="text-zinc-500">
+                      {invitation.expiree ? "Expirée" : "En attente"}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={renvoiEnCours === invitation.id}
+                      onClick={() => void renvoyerInvitation(invitation.id)}
+                      className="text-[#1E3A8A] underline disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {renvoiEnCours === invitation.id
+                        ? "Renvoi…"
+                        : "Renvoyer l’invitation"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void annulerInvitation(invitation.id)}
+                      className="text-[#1E3A8A] underline"
+                    >
+                      Annuler
+                    </button>
+                  </span>
+                </li>
+              ),
+            )}
           </ul>
         )}
       </section>
+      {invitationSelectionnee && moi && (
+        <GestionAccesUniteMembre
+          modeInvitation
+          membre={{
+            id: invitationSelectionnee.id,
+            nom: "",
+            email: invitationSelectionnee.email,
+            role: invitationSelectionnee.role,
+            recoitNotifications: false,
+          }}
+          estMoi={false}
+          roleAppelant={moi.role}
+          estDernierTresorierNotifie={false}
+          onClose={() => {
+            setInvitationSelectionnee(undefined);
+            void chargerMembres();
+          }}
+          onRoleModifie={() => undefined}
+          onNotificationsModifiees={() => undefined}
+          onMembreRetire={() => undefined}
+        />
+      )}
       {membreSelectionne && moi && (
         <GestionAccesUniteMembre
           membre={membreSelectionne}
@@ -307,7 +397,11 @@ export default function PageGestionMembres() {
                 membre.recoitNotifications,
             )
           }
-          onClose={() => setMembreSelectionne(undefined)}
+          onClose={() => {
+            setMembreSelectionne(undefined);
+            // Les unités ont pu changer : on rafraîchit le résumé de la liste.
+            void chargerMembres();
+          }}
           onRoleModifie={(membreId, role) => {
             setMembres((precedents) =>
               precedents.map((membre) =>
