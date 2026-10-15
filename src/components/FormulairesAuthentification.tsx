@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { clientAuth } from "@/lib/auth-client";
+import { cheminRetourSecurise, urlEtapeNom } from "@/lib/nomInscription";
 
 function MessageErreur({ message }: { readonly message: string }) {
   return message ? (
@@ -19,7 +20,9 @@ const classeChamp =
 export function FormulaireConnexionEmail() {
   const recherche = useSearchParams();
   const retour = recherche?.get("callbackURL");
-  const callbackURL = retour?.startsWith("/") ? retour : "/";
+  const callbackURL = cheminRetourSecurise(retour);
+  // Les nouveaux comptes passent par l'étape « Prénom et nom » avant leur destination.
+  const callbackInscription = urlEtapeNom(callbackURL);
   const estInvitation = recherche?.get("invitation") === "1";
   // L'identifiant d'invitation est transmis dans callbackURL (/invitation?id=...),
   // pas comme paramètre direct de /sign-in.
@@ -117,7 +120,7 @@ export function FormulaireConnexionEmail() {
         );
         return;
       }
-      window.location.assign(callbackURL);
+      window.location.assign(callbackInscription);
       return;
     }
 
@@ -125,10 +128,13 @@ export function FormulaireConnexionEmail() {
       name: email,
       email,
       password: motDePasse,
-      callbackURL,
+      callbackURL: callbackInscription,
     });
     if (!resultat.error)
-      await clientAuth.sendVerificationEmail({ email, callbackURL });
+      await clientAuth.sendVerificationEmail({
+        email,
+        callbackURL: callbackInscription,
+      });
     setEnCours(false);
     if (resultat.error) {
       setErreur(
