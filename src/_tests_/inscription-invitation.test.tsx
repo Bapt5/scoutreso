@@ -90,6 +90,11 @@ describe("Inscription par invitation", () => {
       );
     });
     expect(mocks.inscrireEmail).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(assign).toHaveBeenCalledWith(
+        "/bienvenue?suite=%2Finvitation%3Fid%3Dinvitation-test",
+      ),
+    );
   });
 
   it("affiche l’erreur de compte existant sans proposer d’alternative de repli", async () => {
