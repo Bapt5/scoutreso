@@ -21,6 +21,7 @@ export function GestionAccesUniteMembre({
   estMoi,
   roleAppelant,
   estDernierTresorierNotifie,
+  modeInvitation = false,
   onClose,
   onMembreRetire,
   onRoleModifie,
@@ -30,6 +31,8 @@ export function GestionAccesUniteMembre({
   readonly estMoi: boolean;
   readonly roleAppelant: string;
   readonly estDernierTresorierNotifie: boolean;
+  /** `membre.id` est alors l'id d'une invitation en attente (rôle et unités prévus). */
+  readonly modeInvitation?: boolean;
   readonly onClose: () => void;
   readonly onMembreRetire: (membreId: string) => void;
   readonly onRoleModifie: (membreId: string, role: string) => void;
@@ -51,10 +54,13 @@ export function GestionAccesUniteMembre({
   const [message, setMessage] = useState("");
   const [confirmationRetrait, setConfirmationRetrait] = useState(false);
   const [retraitEnCours, setRetraitEnCours] = useState(false);
+  const urlAcces = modeInvitation
+    ? `/api/group/invitations/${membre.id}`
+    : `/api/group/members/${membre.id}/unites`;
 
   useEffect(() => {
     let annule = false;
-    fetch(`/api/group/members/${membre.id}/unites`)
+    fetch(urlAcces)
       .then((reponse) => (reponse.ok ? reponse.json() : null))
       .then(
         (
@@ -83,7 +89,7 @@ export function GestionAccesUniteMembre({
     return () => {
       annule = true;
     };
-  }, [membre.id]);
+  }, [urlAcces]);
 
   const basculerUnite = (uniteId: string) =>
     setUniteIdsAutorisees((precedent) => {
@@ -122,6 +128,29 @@ export function GestionAccesUniteMembre({
     setEnregistrement(true);
     setMessage("");
     try {
+      if (modeInvitation) {
+        const reponseInvitation = await fetch(urlAcces, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            role,
+            uniteIds: [...uniteIdsAutorisees],
+          }),
+        });
+        if (!reponseInvitation.ok) {
+          const corps = (await reponseInvitation.json().catch(() => null)) as {
+            error?: string;
+          } | null;
+          setMessage(
+            corps?.error ??
+              "Impossible d’enregistrer les modifications. Réessayez.",
+          );
+          return;
+        }
+        onRoleModifie(membre.id, role);
+        setMessage("Modifications enregistrées.");
+        return;
+      }
       if (roleAChange) {
         const reponseRole = await fetch(
           `/api/group/members/${membre.id}/role`,
@@ -229,7 +258,9 @@ export function GestionAccesUniteMembre({
             )}
             {peutModifierRole ? (
               <select
-                aria-label="Rôle du membre"
+                aria-label={
+                  modeInvitation ? "Rôle prévu pour l’invité" : "Rôle du membre"
+                }
                 value={role}
                 onChange={(event) => setRole(event.target.value)}
                 className="mt-1 rounded-lg border border-zinc-300 bg-white px-2 py-1 text-sm text-zinc-900 outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/20"
@@ -259,7 +290,7 @@ export function GestionAccesUniteMembre({
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
           {chargement ? (
             <p className="text-sm text-zinc-600">Chargement…</p>
-          ) : role === "owner" ? (
+          ) : role === "owner" && !modeInvitation ? (
             <div className="space-y-4">
               <p className="text-sm text-zinc-600">
                 Ce membre a accès à toutes les unités du groupe (Trésorier ou
@@ -378,7 +409,9 @@ export function GestionAccesUniteMembre({
         <div className="shrink-0 border-t border-zinc-200 p-6">
           {message && <p className="mb-3 text-sm text-zinc-600">{message}</p>}
           {!chargement &&
-            (peutModifierRole || !accesTotalAffiche || role === "owner") && (
+            (peutModifierRole ||
+              !accesTotalAffiche ||
+              (role === "owner" && !modeInvitation)) && (
               <button
                 type="button"
                 disabled={enregistrement}
@@ -391,6 +424,7 @@ export function GestionAccesUniteMembre({
               </button>
             )}
           {membre.role !== "owner" &&
+            !modeInvitation &&
             (confirmationRetrait ? (
               <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3">
                 <p className="text-sm text-red-900">

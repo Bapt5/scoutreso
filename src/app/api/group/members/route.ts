@@ -29,9 +29,13 @@ export async function GET(requete: Request) {
         email: string;
         role: string;
         recoitNotifications: boolean;
+        nombreUnites: number;
       }>(
         `SELECT member.id, "user".name AS nom, "user".email, member.role,
-                notif.user_id IS NOT NULL AS "recoitNotifications"
+                notif.user_id IS NOT NULL AS "recoitNotifications",
+                (SELECT COUNT(*)::int FROM scouticket_acces_unite_membre acces
+                  WHERE acces.user_id = member."userId"
+                    AND acces.organization_id = member."organizationId") AS "nombreUnites"
            FROM member
            JOIN "user" ON "user".id = member."userId"
            LEFT JOIN scouticket_notification_tresorerie notif
@@ -45,10 +49,22 @@ export async function GET(requete: Request) {
         id: string;
         email: string;
         role: string;
+        statut: string;
         expiresAt: Date;
+        nombreUnites: number;
       }>(
-        'SELECT id, email, role, "expiresAt" FROM invitation WHERE "organizationId" = $1 AND status = $2 ORDER BY "createdAt" DESC',
-        [identifiantOrganisation, "pending"],
+        // Les refusées restent visibles pour que le responsable voie le
+        // refus ; les annulées sont supprimées, les acceptées sont devenues
+        // des membres.
+        `SELECT invitation.id, invitation.email, invitation.role,
+                invitation.status AS statut, invitation."expiresAt",
+                (SELECT COUNT(*)::int FROM scouticket_invitation_unite iu
+                  WHERE iu.invitation_id = invitation.id) AS "nombreUnites"
+           FROM invitation
+          WHERE invitation."organizationId" = $1
+            AND invitation.status IN ('pending', 'rejected')
+          ORDER BY invitation."createdAt" DESC`,
+        [identifiantOrganisation],
       ),
       pool.query<{ id: string }>(
         `SELECT id FROM member WHERE "userId" = $1 AND "organizationId" = $2`,
@@ -65,7 +81,8 @@ export async function GET(requete: Request) {
       moi: { id: moiLigne.rows[0]?.id ?? "", role },
       invitations: invitations.rows.map((invitation) => ({
         ...invitation,
-        expiree: invitation.expiresAt <= new Date(),
+        expiree:
+          invitation.statut === "pending" && invitation.expiresAt <= new Date(),
       })),
     });
   });

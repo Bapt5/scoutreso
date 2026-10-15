@@ -53,6 +53,7 @@ flowchart TD
   proprietaire --> gestion[/Gestion des membres/]
   gestion --> invitation[Better Auth : inviter avec le rôle member]
   invitation --> invitationEnAttente[(PostgreSQL : invitation pending)]
+  invitationEnAttente -. optionnel .-> accesPrevus[(PostgreSQL : scouticket_invitation_unite\nrôle et unités prévus)]
   invitation --> emailInvitation[E-mail SMTP contenant /invitation?id=...]
   emailInvitation --> lienInvitation[Le membre ouvre le lien]
   lienInvitation --> connecte{Membre connecté ?}
@@ -61,7 +62,8 @@ flowchart TD
   connecte -- Oui --> decision{Accepter ?}
   decision -- Non --> refuse[Invitation refusée]
   decision -- Oui --> accepter[Better Auth : acceptInvitation]
-  accepter --> membre[(PostgreSQL : membre rattaché\nau groupe, rôle member)]
+  accepter --> membre[(PostgreSQL : membre rattaché\nau groupe, rôle de l’invitation)]
+  accepter -. afterAcceptInvitation .-> accesCopies[Copie des unités prévues vers\nscouticket_acces_unite_membre]
   membre --> groupePrincipalInvite[Activer et enregistrer\nle groupe principal]
   groupePrincipalInvite --> depense
 ```
@@ -190,6 +192,8 @@ Quand le paramètre `ndf_signee_actif` (`scouticket_group_data`, migration `sql/
 Par défaut, un membre simple (rôle `member`) ne peut soumettre une dépense que pour les unités qui lui ont été explicitement attribuées par un responsable (owner/admin) depuis `/gestion-membres` ; l’absence de ligne pour une unité donnée dans `scouticket_acces_unite_membre` signifie qu’il n’y a pas accès. Les responsables (owner/admin) ne sont jamais restreints : ils ont toujours accès à toutes les unités de leur groupe, sans qu’aucune ligne ne soit nécessaire. Cette restriction est vérifiée à l’envoi d’une dépense (`POST /api/send-expense`) et lors du choix d’une unité par défaut (`POST /api/user/unit-preference`).
 
 Depuis `/gestion-membres`, un responsable peut changer le rôle d’un autre membre (jamais le sien) via `PATCH /api/group/members/[memberId]/role`, qui délègue à Better Auth (`auth.api.updateMemberRole`, journalisé sous l’action d’audit `role_membre_modifie`). Better Auth réserve au rôle `owner` la modification du rôle d’un autre `owner` et la promotion au rang de `owner`.
+
+**Rôle et unités définis avant l’acceptation d’une invitation.** Un responsable peut cliquer sur une invitation `pending` pour en fixer le rôle et les unités via `GET`/`PATCH /api/group/invitations/[invitationId]` (mêmes règles que pour un membre : seul un `owner` attribue ou modifie le rôle `owner`). Le rôle est écrit dans `invitation.role` (que Better Auth copie dans `member.role` à l’acceptation) ; les unités, qui ne peuvent pas aller dans `scouticket_acces_unite_membre` (clé étrangère vers `"user"`, l’invité n’ayant pas forcément de compte), sont stockées dans `scouticket_invitation_unite` (aucune ligne pour un rôle responsable). Le nettoyage repose uniquement sur des actions humaines, via les `organizationHooks` de `src/lib/auth.ts` (`src/lib/invitationUnites.ts`) : à l’acceptation (`afterAcceptInvitation`), les unités sont copiées vers `scouticket_acces_unite_membre` (celles supprimées entre-temps sont ignorées), les effets du rôle (notifications trésorerie, circuit de signature) sont synchronisés via `synchroniserEffetsRole`, puis les lignes de l’invitation sont supprimées, la ligne `accepted` étant conservée ; au refus (`afterRejectInvitation`), seules les unités sont supprimées et la ligne `rejected` reste visible dans la liste jusqu’à sa suppression manuelle (`DELETE /api/group/invitations/[invitationId]`) ; à l’annulation (`afterCancelInvitation`), l’invitation est supprimée (les unités partent en `ON DELETE CASCADE`). Une invitation `pending` expirée conserve ses unités pour pouvoir être renvoyée (`resend` garde le même identifiant). Le hook d’acceptation s’exécute hors transaction Better Auth : en cas d’erreur il est journalisé sans bloquer l’acceptation, le membre restant alors sans unité.
 
 Depuis la page `/compte` (lien « Mon compte »), le composant `ProfilUtilisateur` permet de modifier son profil via le client Better Auth : le nom (`clientAuth.updateUser`, action d’audit `profil_modifie`), l’adresse e-mail (`clientAuth.changeEmail`, `user.changeEmail` activé dans `src/lib/auth.ts`, action `changement_email_demande`) et le mot de passe (`clientAuth.changePassword` avec ancien mot de passe, nouveau et confirmation vérifiée côté client, les autres sessions sont révoquées, action `mot_de_passe_modifie`). Un changement d’e-mail envoie le lien de vérification habituel (`envoyerEmailVerificationCompte`) à la nouvelle adresse : l’adresse du compte ne change qu’après clic sur ce lien. `ProfilUtilisateur` appelle `clientAuth.listAccounts()` : si aucun compte lié n’a le `providerId` `credential` (connexion Google uniquement), les formulaires sont masqués et remplacés par un encart indiquant que le profil se gère depuis le compte Google ; en cas d’échec de cet appel, les formulaires restent affichés.
 

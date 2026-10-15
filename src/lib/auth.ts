@@ -13,6 +13,11 @@ import { googleActif } from "@/lib/google";
 import { journal } from "@/lib/logger";
 import { journaliserAuditAuthentification } from "@/lib/auditAuthentification";
 import { verifierSuppressionCompte } from "@/lib/suppressionCompte";
+import {
+  appliquerInvitationAcceptee,
+  supprimerInvitationAnnulee,
+  supprimerUnitesInvitation,
+} from "@/lib/invitationUnites";
 
 export const auth = betterAuth({
   database: pool,
@@ -136,6 +141,24 @@ export const auth = betterAuth({
     lastLoginMethod(),
     organization({
       invitationExpiresIn: 15 * 24 * 60 * 60,
+      organizationHooks: {
+        // Rôle et unités peuvent être définis par un responsable avant
+        // l'acceptation (table scouticket_invitation_unite).
+        afterAcceptInvitation: async ({ invitation, member }) => {
+          await appliquerInvitationAcceptee({
+            id: invitation.id,
+            organizationId: invitation.organizationId,
+            role: member.role,
+            userId: member.userId,
+          });
+        },
+        afterRejectInvitation: async ({ invitation }) => {
+          await supprimerUnitesInvitation(invitation.id);
+        },
+        afterCancelInvitation: async ({ invitation }) => {
+          await supprimerInvitationAnnulee(invitation.id);
+        },
+      },
       async sendInvitationEmail(data) {
         await envoyerEmailInvitation({
           destinataire: data.email,
