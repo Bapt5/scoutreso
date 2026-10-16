@@ -25,6 +25,10 @@ import { verifierPostesEnvoi } from "@/lib/budgetServer";
 import { journal } from "@/lib/logger";
 import { recupererContexteGroupe } from "@/lib/sessionServeur";
 
+// Le dépôt d'une note de frais signée lance Chromium (HTML → PDF) : démarrage
+// à froid et rendu peuvent dépasser la durée par défaut de la fonction.
+export const maxDuration = 60;
+
 function validateEnv() {
   if (
     !process.env.SMTP_HOST ||

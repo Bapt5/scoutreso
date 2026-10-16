@@ -27,6 +27,16 @@ const nextConfig = {
     // Empty config to silence the migration warning
     // The webpack fallback config below will be used if --webpack flag is passed
   },
+  // Chromium (génération du PDF de la note de frais) lit ses binaires compressés
+  // dans `bin/` à l'exécution : le package ne doit être ni bundlé ni relocalisé,
+  // et `bin/` doit être copié dans la fonction (non détecté par le tracing).
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  outputFileTracingIncludes: {
+    "/api/send-expense": [
+      "./node_modules/@sparticuz/chromium/bin/**",
+      "./node_modules/.pnpm/@sparticuz+chromium@*/node_modules/@sparticuz/chromium/bin/**",
+    ],
+  },
   experimental: {
     // 20 Mo de fichiers encodés en Base64 représentent environ 27 Mo de JSON.
     proxyClientMaxBodySize: "30mb",
