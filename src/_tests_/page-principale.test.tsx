@@ -14,7 +14,6 @@ vi.mock("@/lib/auth-client", () => ({
   clientAuth: {
     useSession: () => ({ data: mocks.session(), isPending: false }),
     useActiveOrganization: () => ({ data: mocks.organisation() }),
-    useListOrganizations: () => ({ data: mocks.organisations() }),
     organization: {
       setActive: vi.fn(),
       create: vi.fn(),
@@ -61,6 +60,28 @@ vi.mock("@/lib/useOnlineStatus", () => ({
   useStatutEnLigne: () => true,
 }));
 
+/**
+ * Simule `fetch` : la liste des groupes (`/api/user/groupes`) vient de
+ * `mocks.organisations`, le reste est délégué au simulacre du test.
+ */
+function stubFetch(base: (...arguments_: any[]) => unknown) {
+  vi.stubGlobal("fetch", (...arguments_: unknown[]) =>
+    arguments_[0] === "/api/user/groupes"
+      ? Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              groupes: (mocks.organisations() as object[]).map((groupe) => ({
+                role: "owner",
+                suppressionDefinitiveLe: null,
+                ...groupe,
+              })),
+            }),
+        })
+      : base(...arguments_),
+  );
+}
+
 describe("Page principale", () => {
   beforeEach(() => {
     mocks.session.mockReturnValue({
@@ -74,8 +95,7 @@ describe("Page principale", () => {
     mocks.organisations.mockReturnValue([]);
     mocks.listerInvitations.mockReset();
     mocks.listerInvitations.mockResolvedValue({ data: [], error: null });
-    vi.stubGlobal(
-      "fetch",
+    stubFetch(
       vi.fn().mockResolvedValue({
         ok: true,
         json: () =>
@@ -106,8 +126,7 @@ describe("Page principale", () => {
   });
 
   it("transmet les paramètres de scan du groupe à l'ajout de justificatifs", async () => {
-    vi.stubGlobal(
-      "fetch",
+    stubFetch(
       vi.fn().mockResolvedValue({
         ok: true,
         json: () =>
@@ -135,8 +154,7 @@ describe("Page principale", () => {
   });
 
   it("masque les actions d'administration pour un membre", async () => {
-    vi.stubGlobal(
-      "fetch",
+    stubFetch(
       vi.fn().mockResolvedValue({
         ok: true,
         json: () =>
@@ -157,8 +175,7 @@ describe("Page principale", () => {
 
   describe("suivi budgétaire", () => {
     const groupe = (isAdmin: boolean, budgetActif: boolean) =>
-      vi.stubGlobal(
-        "fetch",
+      stubFetch(
         vi.fn().mockResolvedValue({
           ok: true,
           json: () =>
@@ -277,8 +294,7 @@ describe("Page principale", () => {
       mocks.organisations.mockReturnValue([
         { id: "org_1", name: "Groupe des Éclaireurs" },
       ]);
-      vi.stubGlobal(
-        "fetch",
+      stubFetch(
         vi.fn((url: string) => {
           if (url === "/api/user/default-group")
             return Promise.resolve({
@@ -322,7 +338,7 @@ describe("Page principale", () => {
           });
         return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
       });
-      vi.stubGlobal("fetch", fetchMock);
+      stubFetch(fetchMock);
 
       render(<Home />);
 
@@ -362,7 +378,7 @@ describe("Page principale", () => {
           });
         return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
       });
-      vi.stubGlobal("fetch", fetchMock);
+      stubFetch(fetchMock);
 
       render(<Home />);
 

@@ -182,6 +182,35 @@ export async function reserverNumeros(
   return attribues;
 }
 
+/**
+ * Tous les groupes de l’utilisateur avec leur date de demande de suppression
+ * (`null` hors suppression). La liste Better Auth ignore cet état.
+ */
+export async function listerGroupesUtilisateur(identifiantUtilisateur: string) {
+  const resultat = await pool.query<{
+    id: string;
+    name: string;
+    role: string;
+    suppression_demandee_le: Date | null;
+  }>(
+    `SELECT organization.id, organization.name, member.role,
+            donnees.suppression_demandee_le
+       FROM member
+       JOIN organization ON organization.id = member."organizationId"
+       LEFT JOIN scouticket_group_data donnees
+         ON donnees.organization_id = organization.id
+      WHERE member."userId" = $1
+      ORDER BY organization.name`,
+    [identifiantUtilisateur],
+  );
+  return resultat.rows.map((ligne) => ({
+    id: ligne.id,
+    name: ligne.name,
+    role: ligne.role,
+    suppressionDemandeeLe: ligne.suppression_demandee_le,
+  }));
+}
+
 export async function recupererRoleMembre(
   identifiantUtilisateur: string,
   identifiantOrganisation: string,

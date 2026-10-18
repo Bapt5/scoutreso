@@ -3,6 +3,7 @@ import { APIError } from "better-auth/api";
 import { auth } from "@/lib/auth";
 import { recupererSession } from "@/lib/sessionServeur";
 import { pool } from "@/lib/baseDeDonnees";
+import { lireSuppressionDemandeeLe } from "@/lib/suppressionGroupe";
 import { verifierOrigineRequete } from "@/lib/api/securiteRequetes";
 import { executerRouteAvecLogs } from "@/lib/api/routeAvecLogs";
 
@@ -36,6 +37,16 @@ export async function POST(requete: Request) {
         { error: "Vous n'êtes pas membre de ce groupe" },
         { status: 404 },
       );
+
+    // Better Auth refuserait au dernier responsable de quitter un groupe en
+    // suppression : on le retire directement, la purge emportera le reste.
+    if (await lireSuppressionDemandeeLe(organizationId)) {
+      await pool.query(
+        `DELETE FROM member WHERE "userId" = $1 AND "organizationId" = $2`,
+        [session.user.id, organizationId],
+      );
+      return NextResponse.json({ success: true });
+    }
 
     try {
       await auth.api.leaveOrganization({

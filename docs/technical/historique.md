@@ -20,7 +20,7 @@ Les kilomètres d'une note de frais signée ne sont pas conservés : seul le mon
 
 - Conservation **tant que l'option est active**. Pas de purge automatique.
 - **Désactiver** l'option (`PATCH /api/group/parametres`, `historiqueActif: false`, refusé tant que le suivi budgétaire est actif) supprime toutes les entrées du groupe dans la même transaction que la mise à jour du paramètre. Le corps doit contenir `confirmationSuppressionHistorique: true`, sinon la requête est refusée (400). L'interface demande de saisir `SUPPRIMER` dans un dialog qui indique le nombre d'entrées supprimées. Si l'historique n'est pas vide, ce dialog propose d'abord d'exporter tout l'historique en CSV (même export que `GET /api/historique/export`, sans filtre) pour en garder une copie ; l'export n'est jamais obligatoire. L'événement est journalisé (`historique.desactive`, avec le nombre d'entrées, sans donnée personnelle).
-- **Supprimer le groupe** supprime ses entrées (`ON DELETE CASCADE`).
+- **Supprimer le groupe** (voir [Suppression d'un groupe](/technical/suppression-groupe)) : l'historique est envoyé en CSV aux responsables, puis ses entrées sont supprimées (`ON DELETE CASCADE`) à la purge, 30 jours après la demande.
 - **Supprimer le compte d'un auteur** conserve l'entrée mais anonymise l'auteur (`ON DELETE SET NULL`, affiché « Ancien membre »).
 - Aucune donnée sensible au sens de l'article 9 du RGPD n'est stockée.
 

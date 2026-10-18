@@ -49,6 +49,14 @@ type Groupe = {
 
 type OngletAccueil = "depenses" | "recettes";
 
+/** Groupe de l'utilisateur ; `suppressionDefinitiveLe` renseigné = en suppression. */
+type GroupeUtilisateur = {
+  id: string;
+  name: string;
+  role: string;
+  suppressionDefinitiveLe: string | null;
+};
+
 type InvitationEnAttente = {
   id: string;
   organizationName?: string | null;
@@ -97,7 +105,6 @@ export default function Home() {
   const router = useRouter();
   const { data: session, isPending } = clientAuth.useSession();
   const { data: organisation } = clientAuth.useActiveOrganization();
-  const { data: organisations } = clientAuth.useListOrganizations();
   const [piecesJointes, setPiecesJointes] = useState<PieceJointeDepense[]>([]);
   const [kilometrages, setKilometrages] = useState<LigneKilometriqueSaisie[]>(
     [],
@@ -115,6 +122,12 @@ export default function Home() {
   const [departEnCours, setDepartEnCours] = useState(false);
   const [erreurDepart, setErreurDepart] = useState("");
   const [groupesQuittes, setGroupesQuittes] = useState<Set<string>>(new Set());
+  // Groupes de l'utilisateur et leur état (null = pas encore chargés).
+  const [groupes, setGroupes] = useState<GroupeUtilisateur[] | null>(null);
+  const [erreurGroupes, setErreurGroupes] = useState(false);
+  const [groupeAReactiver, setGroupeAReactiver] = useState<string | null>(null);
+  const [reactivationEnCours, setReactivationEnCours] = useState(false);
+  const [erreurReactivation, setErreurReactivation] = useState("");
   const estEnLigne = useStatutEnLigne();
   // Les kilomètres n'existent que pour une note de frais, si le groupe les active.
   const kmDisponible =
@@ -147,6 +160,85 @@ export default function Home() {
       annule = true;
     };
   }, [session?.user.id, session?.user.emailVerified]);
+
+  // Source unique de la liste des groupes et de leur état. Sans `silencieux`,
+  // la liste repasse à « non chargée » : l'écran d'attente évite d'afficher un
+  // état périmé.
+  const chargerGroupes = useCallback(async (silencieux = false) => {
+    if (!silencieux) {
+      setGroupes(null);
+      setErreurGroupes(false);
+    }
+    try {
+      const reponse = await fetch("/api/user/groupes", { cache: "no-store" });
+      const corps = reponse.ok
+        ? ((await reponse.json()) as { groupes?: GroupeUtilisateur[] })
+        : null;
+      if (!corps || !Array.isArray(corps.groupes)) throw new Error("groupes");
+      setGroupes(corps.groupes);
+      setErreurGroupes(false);
+    } catch {
+      // En rechargement silencieux on garde la dernière liste connue.
+      if (!silencieux) setErreurGroupes(true);
+    }
+  }, []);
+
+  const identifiantUtilisateur = session?.user.id;
+  const identifiantOrganisationActive = organisation?.id;
+  // Au démarrage, et à chaque changement de groupe actif (dont le retour à la
+  // liste via « Changer de groupe »).
+  useEffect(() => {
+    if (!identifiantUtilisateur) return;
+    void chargerGroupes();
+  }, [chargerGroupes, identifiantUtilisateur, identifiantOrganisationActive]);
+
+  // Un autre responsable a pu supprimer ou réactiver un groupe entre-temps.
+  useEffect(() => {
+    if (!identifiantUtilisateur) return;
+    const rafraichir = () => {
+      if (document.visibilityState === "visible") void chargerGroupes(true);
+    };
+    document.addEventListener("visibilitychange", rafraichir);
+    return () => document.removeEventListener("visibilitychange", rafraichir);
+  }, [chargerGroupes, identifiantUtilisateur]);
+
+  // Un groupe devenu « en suppression » ne peut plus rester actif.
+  const activeEnSuppression = Boolean(
+    organisation &&
+    groupes?.some(
+      (item) => item.id === organisation.id && item.suppressionDefinitiveLe,
+    ),
+  );
+  useEffect(() => {
+    if (activeEnSuppression)
+      void clientAuth.organization.setActive({ organizationId: null });
+  }, [activeEnSuppression]);
+
+  const reactiverGroupe = async (identifiantOrganisation: string) => {
+    setReactivationEnCours(true);
+    setErreurReactivation("");
+    const reponse = await fetch("/api/group/reactivation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ organizationId: identifiantOrganisation }),
+    });
+    setReactivationEnCours(false);
+    if (reponse.ok) {
+      setGroupes((precedent) =>
+        (precedent ?? []).map((item) =>
+          item.id === identifiantOrganisation
+            ? { ...item, suppressionDefinitiveLe: null }
+            : item,
+        ),
+      );
+      setGroupeAReactiver(null);
+      return;
+    }
+    const corps = (await reponse.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    setErreurReactivation(corps?.error ?? "Impossible de réactiver ce groupe.");
+  };
 
   const definirGroupePrincipal = async (identifiantOrganisation: string) => {
     await fetch("/api/user/default-group", {
@@ -181,7 +273,14 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!session || organisation || !organisations || choixManuelGroupe) return;
+    if (
+      !session ||
+      organisation ||
+      !groupes ||
+      initialisationGroupeTerminee ||
+      choixManuelGroupe
+    )
+      return;
     let annule = false;
     const activerGroupePrincipal = async () => {
       try {
@@ -191,7 +290,10 @@ export default function Home() {
           : { organizationId: null };
         if (
           organizationId &&
-          organisations.some((item) => item.id === organizationId)
+          groupes.some(
+            (item) =>
+              item.id === organizationId && !item.suppressionDefinitiveLe,
+          )
         ) {
           await clientAuth.organization.setActive({ organizationId });
         }
@@ -203,7 +305,13 @@ export default function Home() {
     return () => {
       annule = true;
     };
-  }, [choixManuelGroupe, organisation, organisations, session]);
+  }, [
+    choixManuelGroupe,
+    groupes,
+    initialisationGroupeTerminee,
+    organisation,
+    session,
+  ]);
 
   const chargerGroupe = useCallback(
     async (silencieux = false) => {
@@ -256,6 +364,29 @@ export default function Home() {
     }
     setNomGroupe("");
   };
+  if (erreurGroupes)
+    return (
+      <main className="min-h-screen bg-zinc-50 p-6 flex items-center justify-center">
+        <section className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 text-center">
+          <p className="text-zinc-900">Impossible de charger vos groupes.</p>
+          <button
+            type="button"
+            onClick={() => void chargerGroupes()}
+            className="mt-4 rounded-lg bg-[#1E3A8A] px-4 py-2 text-white"
+          >
+            Réessayer
+          </button>
+        </section>
+      </main>
+    );
+  // On n'affiche ni groupe actif ni liste tant que l'état de suppression des
+  // groupes n'est pas connu.
+  if (groupes === null || activeEnSuppression)
+    return (
+      <main className="min-h-screen bg-zinc-50 p-6 text-center text-zinc-600">
+        Chargement…
+      </main>
+    );
   if (!organisation && !initialisationGroupeTerminee && !choixManuelGroupe)
     return (
       <main className="min-h-screen bg-zinc-50 p-6 text-center text-zinc-600">
@@ -276,73 +407,153 @@ export default function Home() {
             </div>
           )}
           <div className="mt-5 space-y-2">
-            {organisations
-              ?.filter((item) => !groupesQuittes.has(item.id))
-              .map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-lg border border-zinc-300"
-                >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void (async () => {
-                        await definirGroupePrincipal(item.id);
-                        await clientAuth.organization.setActive({
-                          organizationId: item.id,
-                        });
-                      })()
-                    }
-                    className="block w-full p-3 text-left text-zinc-900 hover:bg-zinc-50"
-                  >
-                    {item.name}
-                  </button>
-                  {groupeAQuitter === item.id ? (
-                    <div className="border-t border-red-200 bg-red-50 p-3">
-                      <p className="text-sm text-red-900">
-                        Quitter le groupe « {item.name} » ?
-                      </p>
-                      {erreurDepart && (
-                        <p className="mt-2 text-sm text-red-700">
-                          {erreurDepart}
+            {groupes
+              .filter((item) => !groupesQuittes.has(item.id))
+              .map((item) => {
+                const suppression = item.suppressionDefinitiveLe
+                  ? item
+                  : undefined;
+                if (suppression?.suppressionDefinitiveLe)
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border border-dashed border-zinc-300 bg-zinc-100"
+                    >
+                      <div className="p-3">
+                        <p className="text-zinc-500">{item.name}</p>
+                        <p className="mt-1 text-xs text-red-700">
+                          En cours de suppression, définitive le{" "}
+                          {new Date(
+                            suppression.suppressionDefinitiveLe,
+                          ).toLocaleDateString("fr-FR")}
                         </p>
-                      )}
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          type="button"
-                          disabled={departEnCours}
-                          onClick={() => void quitterGroupe(item.id)}
-                          className="flex-1 rounded-lg bg-red-700 p-2 text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {departEnCours ? "Départ…" : "Confirmer"}
-                        </button>
-                        <button
-                          type="button"
-                          disabled={departEnCours}
-                          onClick={() => {
-                            setGroupeAQuitter(null);
-                            setErreurDepart("");
-                          }}
-                          className="flex-1 rounded-lg border border-zinc-300 p-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          Annuler
-                        </button>
                       </div>
+                      {groupeAReactiver === item.id ? (
+                        <div className="border-t border-zinc-300 bg-white p-3">
+                          <p className="text-sm text-zinc-900">
+                            Réactiver le groupe « {item.name} » ?
+                          </p>
+                          {erreurReactivation && (
+                            <p className="mt-2 text-sm text-red-700">
+                              {erreurReactivation}
+                            </p>
+                          )}
+                          <div className="mt-3 flex gap-2">
+                            <button
+                              type="button"
+                              disabled={reactivationEnCours}
+                              onClick={() => void reactiverGroupe(item.id)}
+                              className="flex-1 rounded-lg bg-[#1E3A8A] p-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {reactivationEnCours
+                                ? "Réactivation…"
+                                : "Réactiver"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={reactivationEnCours}
+                              onClick={() => {
+                                setGroupeAReactiver(null);
+                                setErreurReactivation("");
+                              }}
+                              className="flex-1 rounded-lg border border-zinc-300 p-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex border-t border-zinc-300">
+                          {(suppression.role === "owner" ||
+                            suppression.role === "admin") && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setGroupeAReactiver(item.id);
+                                setErreurReactivation("");
+                              }}
+                              className="block flex-1 p-2 text-center text-sm font-medium text-[#1E3A8A] hover:bg-zinc-50"
+                            >
+                              Réactiver
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => void quitterGroupe(item.id)}
+                            className="block flex-1 p-2 text-center text-sm font-medium text-red-700 hover:bg-red-50"
+                          >
+                            Quitter
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  ) : (
+                  );
+                return (
+                  <div
+                    key={item.id}
+                    className="rounded-lg border border-zinc-300"
+                  >
                     <button
                       type="button"
-                      onClick={() => {
-                        setGroupeAQuitter(item.id);
-                        setErreurDepart("");
-                      }}
-                      className="block w-full border-t border-zinc-200 p-2 text-center text-sm font-medium text-red-700 hover:bg-red-50"
+                      onClick={() =>
+                        void (async () => {
+                          await definirGroupePrincipal(item.id);
+                          await clientAuth.organization.setActive({
+                            organizationId: item.id,
+                          });
+                        })()
+                      }
+                      className="block w-full p-3 text-left text-zinc-900 hover:bg-zinc-50"
                     >
-                      Quitter
+                      {item.name}
                     </button>
-                  )}
-                </div>
-              ))}
+                    {groupeAQuitter === item.id ? (
+                      <div className="border-t border-red-200 bg-red-50 p-3">
+                        <p className="text-sm text-red-900">
+                          Quitter le groupe « {item.name} » ?
+                        </p>
+                        {erreurDepart && (
+                          <p className="mt-2 text-sm text-red-700">
+                            {erreurDepart}
+                          </p>
+                        )}
+                        <div className="mt-3 flex gap-2">
+                          <button
+                            type="button"
+                            disabled={departEnCours}
+                            onClick={() => void quitterGroupe(item.id)}
+                            className="flex-1 rounded-lg bg-red-700 p-2 text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {departEnCours ? "Départ…" : "Confirmer"}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={departEnCours}
+                            onClick={() => {
+                              setGroupeAQuitter(null);
+                              setErreurDepart("");
+                            }}
+                            className="flex-1 rounded-lg border border-zinc-300 p-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGroupeAQuitter(item.id);
+                          setErreurDepart("");
+                        }}
+                        className="block w-full border-t border-zinc-200 p-2 text-center text-sm font-medium text-red-700 hover:bg-red-50"
+                      >
+                        Quitter
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
           </div>
           <div className="mt-5 flex gap-2">
             <input

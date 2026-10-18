@@ -93,6 +93,12 @@ Depuis **Paramètres du groupe**, les responsables gèrent la liste des moyens d
 
 Cette liste est propre à chaque groupe ; elle n’a aucun impact sur les notes de frais, qui ne demandent pas de moyen de paiement.
 
+## Supprimer le groupe
+
+Le **Trésorier** peut supprimer le groupe tout en bas de **Paramètres du groupe**. Une fenêtre explique ce qui sera perdu selon les options activées et demande de saisir le nom du groupe. Les responsables reçoivent alors par e-mail le nom du groupe, l’historique en CSV (si activé) et le budget en CSV (si activé). Si l’envoi échoue, rien n’est supprimé et vous pouvez réessayer.
+
+Le groupe est ensuite conservé **30 jours** : il apparaît grisé dans la liste de vos groupes et un responsable peut le **réactiver**. Passé ce délai, toutes ses données sont supprimées définitivement. Les comptes des membres ne sont pas supprimés, et un responsable peut supprimer son compte même s’il était le dernier responsable d’un groupe en suppression. Les notes de frais signées en cours de signature sont annulées dès la demande.
+
 ## Suivi budgétaire
 
 Dans **Paramètres du groupe**, les responsables peuvent activer le **suivi budgétaire** (il nécessite l’historique). Chaque dépense, recette ou note de frais est alors rattachée à un **poste budgétaire** (« Camp », « Matériel », « Calendrier »…), choisi par le membre dans le formulaire. Des postes par défaut sont créés à l’activation et se modifient depuis la page **Suivi budgétaire**.

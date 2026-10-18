@@ -68,6 +68,7 @@ export async function GET(requete: Request) {
       configured: Boolean(group.unites.length),
       aTresorier: group.emailsTresoriers.length > 0,
       isAdmin: isAdmin(role),
+      isOwner: role === "owner",
       unitPreference: unitesVisibles.some(
         (unite) => unite.id === preference.rows[0]?.unit_id,
       )

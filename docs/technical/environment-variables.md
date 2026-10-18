@@ -73,6 +73,12 @@ Après avoir modifié cette variable dans l’environnement de production, redé
 
 Il n’y a pas d’adresse de trésorerie configurée séparément : les notes de frais sont envoyées aux membres du groupe ayant le rôle Trésorier (`owner`), géré depuis la gestion des membres de l’application.
 
+## Purge des groupes supprimés
+
+| Variable      |  Requis   | Description                                                                                                                                                                                                                                                           |
+| ------------- | :-------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CRON_SECRET` | Optionnel | Active `/api/cron/purge-groupes` (`Authorization: Bearer <CRON_SECRET>`) pour purger à l’heure près les groupes dont le délai de 30 jours est écoulé. Sans elle, seule la purge paresseuse s’applique. Voir [Suppression d’un groupe](/technical/suppression-groupe). |
+
 ## Valeurs courantes
 
 | Fournisseur     | `SMTP_HOST`             | `SMTP_PORT` | `SMTP_SECURE` |

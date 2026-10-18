@@ -21,11 +21,25 @@ export default function SuppressionCompte() {
 
   useEffect(() => {
     let annule = false;
-    void clientAuth.organization
-      .list()
-      .then(({ data }) => {
-        if (!annule) setGroupes(data ?? []);
-      })
+    // Un groupe en suppression ne bloque pas la suppression du compte.
+    void fetch("/api/user/groupes")
+      .then((reponse) => (reponse.ok ? reponse.json() : { groupes: [] }))
+      .then(
+        (corps: {
+          groupes?: {
+            id: string;
+            name: string;
+            suppressionDefinitiveLe: string | null;
+          }[];
+        }) => {
+          if (!annule)
+            setGroupes(
+              (corps.groupes ?? []).filter(
+                (groupe) => !groupe.suppressionDefinitiveLe,
+              ),
+            );
+        },
+      )
       .catch(() => {
         if (!annule) setGroupes([]);
       });
