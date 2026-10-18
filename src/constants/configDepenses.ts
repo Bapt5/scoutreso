@@ -100,6 +100,11 @@ export const CATEGORIES_COMPTABLES: readonly CategorieComptable[] = [
       "Achat de carburant ou recharge electrique effectué par un moyen de paiement de la structure",
   },
   {
+    libelle: "Cotisation SGDF",
+    scope: ["depense-groupe"],
+    description: "Cotisation versée au national par le groupe",
+  },
+  {
     libelle: "Eau",
     scope: ["depense-groupe"],
     description: "Abonnement et consommation rattachés au local ou activité",

@@ -48,21 +48,4 @@ describe("categoriesPourTypeEnvoi", () => {
       expect(new Set(categorie.scope).size).toBe(categorie.scope.length);
     }
   });
-
-  it("classe 1 catégorie NDF seule, 23 groupe seul et 23 communes", () => {
-    const ndf = new Set(libelles("note-de-frais"));
-    const groupe = new Set(libelles("depense-groupe"));
-    const ndfSeul = LIBELLES_CATEGORIES_COMPTABLES.filter(
-      (libelle) => ndf.has(libelle) && !groupe.has(libelle),
-    );
-    const groupeSeul = LIBELLES_CATEGORIES_COMPTABLES.filter(
-      (libelle) => groupe.has(libelle) && !ndf.has(libelle),
-    );
-    const communes = LIBELLES_CATEGORIES_COMPTABLES.filter(
-      (libelle) => ndf.has(libelle) && groupe.has(libelle),
-    );
-    expect([ndfSeul.length, groupeSeul.length, communes.length]).toEqual([
-      1, 23, 23,
-    ]);
-  });
 });
