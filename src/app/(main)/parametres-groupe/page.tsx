@@ -267,6 +267,24 @@ export default function PageParametresGroupe() {
           <p className="mt-5 text-sm text-rose-600">{message}</p>
         ) : (
           <div className="mt-5 space-y-5">
+            <nav aria-label="Gestion du groupe" className="space-y-2">
+              {[
+                { href: "/parametres-groupe/membres", libelle: "Membres" },
+                { href: "/parametres-groupe/unites", libelle: "Unités" },
+                {
+                  href: "/parametres-groupe/nomenclature",
+                  libelle: "Nomenclature",
+                },
+              ].map(({ href, libelle }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="block w-full rounded-xl border border-zinc-300 px-4 py-3 text-center font-medium text-[#1E3A8A] transition-colors hover:bg-zinc-50"
+                >
+                  {libelle}
+                </Link>
+              ))}
+            </nav>
             <h2 className="text-lg font-semibold text-zinc-900">
               Année comptable
             </h2>
@@ -280,7 +298,7 @@ export default function PageParametresGroupe() {
                 Sert à l’historique, au suivi budgétaire et à la numérotation
                 des justificatifs. Le format d’affichage se règle dans la{" "}
                 <Link
-                  href="/gestion-nomenclature"
+                  href="/parametres-groupe/nomenclature"
                   className="underline text-[#1E3A8A]"
                 >
                   nomenclature

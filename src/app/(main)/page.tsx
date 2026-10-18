@@ -110,7 +110,6 @@ export default function Home() {
   const [initialisationGroupeTerminee, setInitialisationGroupeTerminee] =
     useState(false);
   const [choixManuelGroupe, setChoixManuelGroupe] = useState(false);
-  const [administrationOuverte, setAdministrationOuverte] = useState(false);
   const [invitations, setInvitations] = useState<InvitationEnAttente[]>([]);
   const [groupeAQuitter, setGroupeAQuitter] = useState<string | null>(null);
   const [departEnCours, setDepartEnCours] = useState(false);
@@ -458,49 +457,12 @@ export default function Home() {
                   </Link>
                 )}
                 {groupe.isAdmin && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setAdministrationOuverte((ouverte) => !ouverte)
-                      }
-                      aria-expanded={administrationOuverte}
-                      className="flex w-full items-center justify-between rounded-xl border border-zinc-300 px-4 py-3 font-medium text-[#1E3A8A] transition-colors hover:bg-zinc-50"
-                    >
-                      Administration
-                      <span aria-hidden="true">
-                        {administrationOuverte ? "−" : "+"}
-                      </span>
-                    </button>
-                    {administrationOuverte && (
-                      <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-                        <Link
-                          href="/gestion-membres"
-                          className="block w-full rounded-lg bg-white px-4 py-3 text-center font-medium text-[#1E3A8A] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-100"
-                        >
-                          Gérer les membres
-                        </Link>
-                        <Link
-                          href="/gestion-unites"
-                          className="block w-full rounded-lg bg-white px-4 py-3 text-center font-medium text-[#1E3A8A] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-100"
-                        >
-                          Gérer les unités
-                        </Link>
-                        <Link
-                          href="/gestion-nomenclature"
-                          className="block w-full rounded-lg bg-white px-4 py-3 text-center font-medium text-[#1E3A8A] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-100"
-                        >
-                          Nomenclature
-                        </Link>
-                        <Link
-                          href="/parametres-groupe"
-                          className="block w-full rounded-lg bg-white px-4 py-3 text-center font-medium text-[#1E3A8A] shadow-sm ring-1 ring-zinc-200 transition-colors hover:bg-zinc-100"
-                        >
-                          Paramètres du groupe
-                        </Link>
-                      </div>
-                    )}
-                  </>
+                  <Link
+                    href="/parametres-groupe"
+                    className="block w-full rounded-xl border border-zinc-300 px-4 py-3 text-center font-medium text-[#1E3A8A] transition-colors hover:bg-zinc-50"
+                  >
+                    Paramètres du groupe
+                  </Link>
                 )}
               </div>
               <div

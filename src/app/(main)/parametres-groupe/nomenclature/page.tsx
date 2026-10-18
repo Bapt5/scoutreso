@@ -193,7 +193,7 @@ export default function PageGestionNomenclature() {
   return (
     <main className="min-h-screen bg-zinc-50 p-4">
       <section className="mx-auto max-w-lg rounded-xl border border-zinc-200 bg-white p-6">
-        <Link href="/" className="text-sm text-[#1E3A8A]">
+        <Link href="/parametres-groupe" className="text-sm text-[#1E3A8A]">
           ← Retour
         </Link>
         <h1 className="mt-4 text-2xl font-semibold text-zinc-900">
