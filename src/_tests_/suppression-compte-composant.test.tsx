@@ -16,7 +16,6 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/auth-client", () => ({
   clientAuth: {
-    organization: { list: mocks.listerGroupes },
     deleteUser: mocks.supprimerUtilisateur,
     signOut: mocks.deconnecter,
   },
@@ -25,14 +24,20 @@ vi.mock("@/lib/auth-client", () => ({
 describe("SuppressionCompte", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.listerGroupes.mockResolvedValue({ data: [] });
+    mocks.listerGroupes.mockResolvedValue([]);
+    vi.stubGlobal("fetch", () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ groupes: mocks.listerGroupes() }),
+      }),
+    );
     mocks.supprimerUtilisateur.mockResolvedValue({ error: null });
   });
 
   it("désactive la suppression tant qu'il reste des groupes", async () => {
-    mocks.listerGroupes.mockResolvedValue({
-      data: [{ id: "org_1", name: "Groupe Test" }],
-    });
+    mocks.listerGroupes.mockReturnValue([
+      { id: "org_1", name: "Groupe Test", suppressionDefinitiveLe: null },
+    ]);
 
     render(<SuppressionCompte />);
 

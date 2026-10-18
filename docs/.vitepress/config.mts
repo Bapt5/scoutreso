@@ -76,6 +76,11 @@ const metadonneesPages: Record<string, { titre: string; description: string }> =
       description:
         "Comprenez le suivi budgétaire optionnel de Scoutréso : postes, budgets par année comptable, réalisé issu de l'historique, droits et suppression.",
     },
+    "technical/suppression-groupe.md": {
+      titre: "Suppression d'un groupe",
+      description:
+        "Comprenez la suppression différée d'un groupe Scoutréso : sauvegarde par e-mail, délai de 30 jours, réactivation et purge définitive.",
+    },
     "technical/local-installation.md": {
       titre: "Installation locale",
       description:
@@ -244,6 +249,10 @@ export default defineConfig({
           {
             text: "Suivi budgétaire",
             link: "/technical/suivi-budgetaire",
+          },
+          {
+            text: "Suppression d'un groupe",
+            link: "/technical/suppression-groupe",
           },
           {
             text: "Variables d'environnement",

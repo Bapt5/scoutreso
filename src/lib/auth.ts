@@ -141,6 +141,9 @@ export const auth = betterAuth({
     lastLoginMethod(),
     organization({
       invitationExpiresIn: 15 * 24 * 60 * 60,
+      // La suppression passe par /api/group/suppression (sauvegarde par e-mail
+      // puis délai de 30 jours) : l'API native supprimerait tout immédiatement.
+      disableOrganizationDeletion: true,
       organizationHooks: {
         // Rôle et unités peuvent être définis par un responsable avant
         // l'acceptation (table scouticket_invitation_unite).

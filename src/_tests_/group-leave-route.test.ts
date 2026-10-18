@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   query: vi.fn(),
   verifierOrigineRequete: vi.fn(),
   leaveOrganization: vi.fn(),
+  lireSuppressionDemandeeLe: vi.fn(),
 }));
 
 vi.mock("@/lib/sessionServeur", () => ({
@@ -16,6 +17,9 @@ vi.mock("@/lib/baseDeDonnees", () => ({
 }));
 vi.mock("@/lib/api/securiteRequetes", () => ({
   verifierOrigineRequete: mocks.verifierOrigineRequete,
+}));
+vi.mock("@/lib/suppressionGroupe", () => ({
+  lireSuppressionDemandeeLe: mocks.lireSuppressionDemandeeLe,
 }));
 vi.mock("@/lib/auth", () => ({
   auth: { api: { leaveOrganization: mocks.leaveOrganization } },
@@ -35,6 +39,23 @@ describe("POST /api/group/leave", () => {
     mocks.recupererSession.mockResolvedValue({ user: { id: "user_1" } });
     mocks.verifierOrigineRequete.mockReturnValue(null);
     mocks.leaveOrganization.mockResolvedValue({});
+    mocks.lireSuppressionDemandeeLe.mockResolvedValue(null);
+  });
+
+  it("retire directement le membre d'un groupe en suppression", async () => {
+    mocks.query
+      .mockResolvedValueOnce({ rows: [{ userId: "user_1" }] })
+      .mockResolvedValueOnce({});
+    mocks.lireSuppressionDemandeeLe.mockResolvedValue(new Date());
+
+    const reponse = await POST(requete());
+
+    expect(reponse.status).toBe(200);
+    expect(mocks.leaveOrganization).not.toHaveBeenCalled();
+    expect(mocks.query).toHaveBeenLastCalledWith(
+      expect.stringContaining("DELETE FROM member"),
+      ["user_1", "org_1"],
+    );
   });
 
   it("refuse une requête non authentifiée", async () => {

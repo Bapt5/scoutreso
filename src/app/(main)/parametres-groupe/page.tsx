@@ -10,6 +10,7 @@ import { DialogConfirmationSaisie } from "@/components/DialogConfirmationSaisie"
 import { InterrupteurParametre } from "@/components/InterrupteurParametre";
 import { LogoGroupe } from "@/components/LogoGroupe";
 import { SelecteurMoyensPaiement } from "@/components/SelecteurMoyensPaiement";
+import { SuppressionGroupe } from "@/components/SuppressionGroupe";
 import { TauxKilometre } from "@/components/TauxKilometre";
 import { clientAuth } from "@/lib/auth-client";
 import { erreurDebutAnneeComptable } from "@/lib/nomenclature";
@@ -18,7 +19,11 @@ import {
   type ParametresGroupe,
 } from "@/lib/parametresGroupe";
 
-type Groupe = { isAdmin: boolean; parametres?: ParametresGroupe };
+type Groupe = {
+  isAdmin: boolean;
+  isOwner?: boolean;
+  parametres?: ParametresGroupe;
+};
 
 export default function PageParametresGroupe() {
   const { data: organisation, isPending: organisationEnChargement } =
@@ -28,6 +33,7 @@ export default function PageParametresGroupe() {
   );
   const [chargement, setChargement] = useState(true);
   const [estAdministrateur, setEstAdministrateur] = useState(false);
+  const [estTresorier, setEstTresorier] = useState(false);
   const [enregistrement, setEnregistrement] = useState(false);
   const [message, setMessage] = useState("");
   // Désactivation de l'historique : nombre d'entrées affiché dans le dialog (null = fermé).
@@ -63,6 +69,7 @@ export default function PageParametresGroupe() {
           return;
         }
         setEstAdministrateur(true);
+        setEstTresorier(Boolean(groupe.isOwner));
         const charges = {
           ...PARAMETRES_GROUPE_PAR_DEFAUT,
           ...groupe.parametres,
@@ -477,6 +484,12 @@ export default function PageParametresGroupe() {
               <p role="status" className="text-sm text-zinc-600">
                 {message}
               </p>
+            )}
+            {estTresorier && organisation && (
+              <SuppressionGroupe
+                nomGroupe={organisation.name}
+                parametres={parametres}
+              />
             )}
           </div>
         )}

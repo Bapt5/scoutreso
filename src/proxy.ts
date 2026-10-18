@@ -40,6 +40,8 @@ export default function proxy(requete: NextRequest) {
   const estRoutePublique =
     chemin.startsWith("/api/auth") ||
     chemin === "/api/health" ||
+    // Authentifiée par son propre secret (CRON_SECRET), sans session.
+    chemin === "/api/cron/purge-groupes" ||
     chemin === "/sign-in" ||
     chemin.startsWith("/sign-in/") ||
     chemin === "/maintenance" ||
