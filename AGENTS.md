@@ -16,7 +16,7 @@ Le code source se trouve dans le dossier `src/` et suit la structure conventionn
 src/
 ├─ app/               # Pages App Router & routes API
 │   ├─ layout.tsx
-│   ├─ (main)          # Page d'accueil + app (gestion-membres, gestion-unites, parametres-groupe, etc.)
+│   ├─ (main)          # Page d'accueil + app (parametres-groupe et ses sous-pages membres/unites/nomenclature/signataires, etc.)
 │   ├─ (auth)          # Pages d'authentification (sign-in, forgot/reset-password)
 │   ├─ offline/        # UI spécifique hors-ligne
 │   └─ api/            # Gestionnaires de routes côté serveur

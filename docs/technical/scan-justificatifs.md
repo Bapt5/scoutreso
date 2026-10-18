@@ -1,6 +1,6 @@
 # Scan automatique des justificatifs
 
-Chaque groupe peut activer le recadrage automatique des justificatifs (ticket, facture) depuis **Administration** puis **Paramètres du groupe** (`/parametres-groupe`, responsables uniquement). Par défaut, le scan est désactivé et le comportement historique (simple réduction de l’image) est conservé.
+Chaque groupe peut activer le recadrage automatique des justificatifs (ticket, facture) depuis **Paramètres du groupe** (`/parametres-groupe`, responsables uniquement). Par défaut, le scan est désactivé et le comportement historique (simple réduction de l’image) est conservé.
 
 ## Comportement
 

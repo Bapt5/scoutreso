@@ -100,12 +100,6 @@ describe("Page principale", () => {
     expect(
       await screen.findByLabelText("Formulaire depense"),
     ).toHaveTextContent("test@example.test");
-    await userEvent.click(
-      screen.getByRole("button", { name: "Administration" }),
-    );
-    expect(
-      screen.getByRole("link", { name: "Gérer les membres" }),
-    ).toHaveAttribute("href", "/gestion-membres");
     expect(
       screen.getByRole("link", { name: "Paramètres du groupe" }),
     ).toHaveAttribute("href", "/parametres-groupe");
@@ -158,7 +152,7 @@ describe("Page principale", () => {
     render(<Home />);
 
     await screen.findByLabelText("Formulaire depense");
-    expect(screen.queryByText("Administration")).not.toBeInTheDocument();
+    expect(screen.queryByText("Paramètres du groupe")).not.toBeInTheDocument();
   });
 
   describe("suivi budgétaire", () => {

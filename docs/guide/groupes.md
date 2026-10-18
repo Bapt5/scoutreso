@@ -20,13 +20,13 @@ Chaque groupe peut adapter ses unités à son fonctionnement. L’application pr
 - Compagnons : turquoise
 - Groupe : bleu foncé
 
-Vous pouvez renommer ou supprimer une unité, en ajouter une autre et choisir sa couleur depuis **Administration** puis **Gérer les unités**. La couleur choisie apparaît dans l’e-mail de justificatif : elle aide la trésorerie à identifier rapidement l’unité concernée.
+Vous pouvez renommer ou supprimer une unité, en ajouter une autre et choisir sa couleur depuis **Paramètres du groupe** puis **Unités**. La couleur choisie apparaît dans l’e-mail de justificatif : elle aide la trésorerie à identifier rapidement l’unité concernée.
 
 Conservez au moins une unité : un justificatif doit toujours être rattaché à une unité du groupe.
 
 ## Nomenclature des justificatifs
 
-Par défaut, les pièces jointes envoyées à la trésorerie gardent le nom du fichier importé par le membre. Les responsables peuvent définir un format de nom depuis **Administration** puis **Nomenclature** ; en cochant l’option, le format est pré-rempli avec `date - unité - type - mode de paiement - montant` et reste modifiable. Un bascule en haut de la page permet de définir un format et une numérotation **différents pour les dépenses et pour les recettes** ; l’année comptable est commune aux deux (son format d’affichage se règle depuis l’onglet « Dépenses »).
+Par défaut, les pièces jointes envoyées à la trésorerie gardent le nom du fichier importé par le membre. Les responsables peuvent définir un format de nom depuis **Paramètres du groupe** puis **Nomenclature** ; en cochant l’option, le format est pré-rempli avec `date - unité - type - mode de paiement - montant` et reste modifiable. Un bascule en haut de la page permet de définir un format et une numérotation **différents pour les dépenses et pour les recettes** ; l’année comptable est commune aux deux (son format d’affichage se règle depuis l’onglet « Dépenses »).
 
 Le format mélange du texte fixe et des variables entre accolades, par exemple `{YYYY}-{MM}-{DD} - {Branche} - {Type} - {Montant} - {Numero}` donne `2026-03-05 - Louveteaux - Carburant - 28.50 - 01.pdf`. Les boutons de la page insèrent les variables, et un aperçu montre le résultat. L’extension du fichier est ajoutée automatiquement.
 
@@ -39,7 +39,7 @@ Le format mélange du texte fixe et des variables entre accolades, par exemple `
 | `{GlobalNumeroComptable}`                         | Rang dans l’année comptable, tous envois confondus (001, 002…)                                                                                                                |
 | `{GlobalNumero}`                                  | Rang dans l’ensemble des envois du groupe (001, 002…)                                                                                                                         |
 
-**Année comptable.** Elle commence par défaut le 1er septembre et se termine le 31 août. Le jour et le mois de début se règlent dans **Administration** puis **Paramètres du groupe**, section « Année comptable », même sans nomenclature personnalisée (pas le 29 février). Lorsqu’elle chevauche deux années civiles, choisissez l’affichage de `{AnneeComptable}` : année de début (2023), année de fin (2024) ou les deux (2023-2024). La numérotation `{GlobalNumeroComptable}` repart de 001 à chaque nouvelle année comptable.
+**Année comptable.** Elle commence par défaut le 1er septembre et se termine le 31 août. Le jour et le mois de début se règlent dans **Paramètres du groupe**, section « Année comptable », même sans nomenclature personnalisée (pas le 29 février). Lorsqu’elle chevauche deux années civiles, choisissez l’affichage de `{AnneeComptable}` : année de début (2023), année de fin (2024) ou les deux (2023-2024). La numérotation `{GlobalNumeroComptable}` repart de 001 à chaque nouvelle année comptable.
 
 **Numéros.** Un numéro n’est consommé que si l’e-mail est bien parti : un envoi en échec ne crée pas de trou. Pour reprendre une numérotation existante, saisissez le prochain numéro à attribuer dans la page. Si deux justificatifs d’un même envoi devaient porter le même nom, un ` - 01`, ` - 02`… est ajouté.
 
@@ -47,7 +47,7 @@ Décochez la personnalisation pour revenir au nom du fichier importé. Dans les 
 
 ## Inviter les membres
 
-Depuis **Administration**, choisissez **Gérer les membres** et saisissez son adresse e-mail. Better Auth lui envoie une invitation ; après l’avoir acceptée, cette personne rejoint le groupe et peut envoyer ses justificatifs. La liste **Utilisateurs** réunit les membres du groupe et les invitations encore en attente d’acceptation. Une invitation en attente peut être annulée ; une invitation refusée reste affichée avec la mention « Refusée » jusqu’à ce qu’un responsable la supprime.
+Depuis **Paramètres du groupe**, choisissez **Membres** et saisissez son adresse e-mail. Better Auth lui envoie une invitation ; après l’avoir acceptée, cette personne rejoint le groupe et peut envoyer ses justificatifs. La liste **Utilisateurs** réunit les membres du groupe et les invitations encore en attente d’acceptation. Une invitation en attente peut être annulée ; une invitation refusée reste affichée avec la mention « Refusée » jusqu’à ce qu’un responsable la supprime.
 
 En cliquant sur l’adresse d’une invitation en attente, un responsable peut définir à l’avance le rôle (Membre, Responsable de groupe ou Trésorier, avec les mêmes règles que pour un membre) et, pour un Membre, les unités accessibles. Ils sont appliqués automatiquement dès que la personne accepte l’invitation. Les unités prévues sont conservées tant que l’invitation est en attente (y compris expirée, pour pouvoir la renvoyer) et sont effacées à l’acceptation, au refus ou à l’annulation.
 
@@ -59,11 +59,11 @@ Depuis la fiche d’un membre (clic sur son nom dans la liste), un responsable p
 
 Les membres invités n’ont pas accès à la configuration du groupe ni à la gestion des invitations.
 
-![Menu Administration de Scoutréso](/guide/administration-groupe.png)
+![Page Paramètres du groupe de Scoutréso](/guide/administration-groupe.png)
 
 ## Scan automatique des justificatifs
 
-Les responsables peuvent activer le scan depuis **Administration** puis **Paramètres du groupe**. Il est désactivé par défaut. Une fois activé :
+Les responsables peuvent activer le scan depuis **Paramètres du groupe**. Il est désactivé par défaut. Une fois activé :
 
 - en **prenant une photo** ou en **important une image**, Scoutréso détecte le ticket ou la facture et propose un aperçu du recadrage : vous pouvez l’utiliser, ajuster les quatre coins à la main, garder l’image d’origine ou annuler. Si rien n’est détecté, un message jaune vous invite à ajuster les coins, qui s’ouvrent directement ;
 - un **PDF** ou un autre fichier non image est ajouté tel quel.

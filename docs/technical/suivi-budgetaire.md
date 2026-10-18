@@ -79,7 +79,7 @@ Réalisé : les dépenses (`type <> 'recette'`, notes de frais comprises) sont c
 
 ## Année comptable
 
-Le suivi porte sur l'année comptable du groupe. Son **début** (jour et mois) se règle désormais dans `/parametres-groupe`, section « Année comptable », même sans nomenclature personnalisée (colonnes `annee_comptable_debut_mois` et `annee_comptable_debut_jour`, inchangées). Le format d'affichage de `{AnneeComptable}` reste dans `/gestion-nomenclature`. `PATCH /api/group/parametres` accepte `anneeComptableDebut` (le 29 février est refusé), et `PATCH /api/group/nomenclature` n'écrit plus que le format. Le début d'année reste aussi exposé via `nomenclature.anneeComptable` pour les consommateurs existants.
+Le suivi porte sur l'année comptable du groupe. Son **début** (jour et mois) se règle désormais dans `/parametres-groupe`, section « Année comptable », même sans nomenclature personnalisée (colonnes `annee_comptable_debut_mois` et `annee_comptable_debut_jour`, inchangées). Le format d'affichage de `{AnneeComptable}` reste dans `/parametres-groupe/nomenclature`. `PATCH /api/group/parametres` accepte `anneeComptableDebut` (le 29 février est refusé), et `PATCH /api/group/nomenclature` n'écrit plus que le format. Le début d'année reste aussi exposé via `nomenclature.anneeComptable` pour les consommateurs existants.
 
 ## Désactivation
 
