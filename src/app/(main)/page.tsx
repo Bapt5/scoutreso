@@ -9,6 +9,7 @@ import { FormulaireRecette } from "@/components/FormulaireRecette";
 import { CapturePhoto } from "@/components/PhotoCapture";
 import { LogoScoutreso } from "@/components/LogoScoutreso";
 import { InviteInstallation } from "@/components/InstallPrompt";
+import { estModeDemo } from "@/lib/demo/mode";
 import { ConfigurationGroupe } from "@/components/GroupSetup";
 import { useStatutEnLigne } from "@/lib/useOnlineStatus";
 import {
@@ -892,7 +893,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      <InviteInstallation />
+      {!estModeDemo() && <InviteInstallation />}
     </main>
   );
 }

@@ -10,6 +10,7 @@ import {
   type TypeEnvoi,
 } from "@/constants/piecesJointes";
 import { LIBELLES_TYPES_ENVOI } from "@/constants/piecesJointes";
+import { estModeDemo } from "@/lib/demo/mode";
 import { journal } from "@/lib/logger";
 import { totalLignes, ventilerParCategorie } from "@/lib/depenses";
 
@@ -71,6 +72,8 @@ const ligneLienHistoriqueTexte = (lien: string | undefined) =>
 
 // Configuration du transporteur SMTP générique
 export const creerTransporteurEmail = () => {
+  // Défense en profondeur : aucun envoi réel n'est possible en démo.
+  if (estModeDemo()) throw new Error("SMTP indisponible en mode démo");
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number.parseInt(process.env.SMTP_PORT || "587"),
@@ -100,6 +103,11 @@ function creerExpediteurEmail() {
 }
 
 export async function envoyerMail(optionsEmail: Omit<SendMailOptions, "from">) {
+  if (estModeDemo()) {
+    // Import dynamique : évite un cycle avec auth (session) et le bundle hors démo.
+    const { capturerMailDemo } = await import("@/lib/demo/boiteMail");
+    return capturerMailDemo(optionsEmail);
+  }
   const transporteur = creerTransporteurEmail();
 
   try {

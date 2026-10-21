@@ -3,6 +3,7 @@ import { createAuthMiddleware } from "better-auth/api";
 import { lastLoginMethod, organization } from "better-auth/plugins";
 import { i18n, locales } from "@better-auth/i18n";
 import { nextCookies } from "better-auth/next-js";
+import { estModeDemo } from "@/lib/demo/mode";
 import { entetesIpDeConfiance } from "@/lib/api/entetesIpConfiance";
 import { pool } from "@/lib/baseDeDonnees";
 import { envoyerEmailInvitation } from "@/lib/emailInvitation";
@@ -38,6 +39,8 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    // Démo : les visiteurs ne s'inscrivent pas, leur bac à sable est semé.
+    disableSignUp: estModeDemo(),
     requireEmailVerification: true,
     minPasswordLength: 8,
     revokeSessionsOnPasswordReset: true,

@@ -1,8 +1,28 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
+import { REPONSE_BLOQUEE_DEMO, decider } from "@/lib/demo/garde";
+import { estModeDemo } from "@/lib/demo/mode";
 
 function urlPublique(chemin: string, requete: NextRequest) {
   return new URL(chemin, process.env.APP_URL?.trim() || requete.url);
+}
+
+function gererDemo(requete: NextRequest) {
+  const decision = decider(
+    requete.nextUrl.pathname,
+    requete.method,
+    Boolean(getSessionCookie(requete)),
+  );
+  const reponse =
+    decision.action === "bloquer"
+      ? NextResponse.json(REPONSE_BLOQUEE_DEMO, { status: 403 })
+      : decision.action === "non_autorise"
+        ? NextResponse.json({ error: "Non autorisé" }, { status: 401 })
+        : decision.action === "rediriger"
+          ? NextResponse.redirect(urlPublique(decision.vers, requete))
+          : NextResponse.next();
+  reponse.headers.set("X-Robots-Tag", "noindex, nofollow");
+  return reponse;
 }
 
 export default function proxy(requete: NextRequest) {
@@ -24,6 +44,8 @@ export default function proxy(requete: NextRequest) {
     }
     return NextResponse.redirect(urlPublique("/maintenance", requete));
   }
+
+  if (estModeDemo()) return gererDemo(requete);
 
   const estConnecte = Boolean(getSessionCookie(requete));
   if (chemin === "/invitation" && !estConnecte) {
