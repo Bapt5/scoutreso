@@ -85,6 +85,11 @@ const metadonneesPages: Record<string, { titre: string; description: string }> =
       description:
         "Comprenez la suppression différée d'un groupe Scoutréso : sauvegarde par e-mail, délai de 30 jours, réactivation et purge définitive.",
     },
+    "technical/demo.md": {
+      titre: "Démo sans compte",
+      description:
+        "Comprenez la démo sans compte de Scoutréso : bac à sable par visiteur, boîte mail virtuelle, quotas, purge et déploiement d'une démo.",
+    },
     "technical/local-installation.md": {
       titre: "Installation locale",
       description:
@@ -263,6 +268,7 @@ export default defineConfig({
             text: "Suppression d'un groupe",
             link: "/technical/suppression-groupe",
           },
+          { text: "Démo sans compte", link: "/technical/demo" },
           {
             text: "Variables d'environnement",
             link: "/technical/environment-variables",

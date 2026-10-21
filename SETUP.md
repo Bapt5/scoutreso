@@ -223,6 +223,8 @@ Les variables d'environnement sont les "réglages secrets" de l'application.
 
 > ✅ = Requis • ♠️ = Optionnel
 
+Une **démo sans compte** peut être déployée à part (second projet, base dédiée) avec `NEXT_PUBLIC_DEMO_MODE=true` : voir [`docs/technical/demo.md`](docs/technical/demo.md) et `.env.demo.example`. Les boutons de la page d'accueil de la documentation se règlent avec `NEXT_PUBLIC_URL_APP_PROD` et `NEXT_PUBLIC_URL_APP_DEMO` (voir `.env.docs.example`).
+
 Pour interrompre temporairement le service, définissez `MAINTENANCE_MODE=true`, puis redéployez l’application. Les pages afficheront la maintenance, les API répondront avec le statut `503` et `/api/health` signalera l’état `maintenance`. Remettez la valeur à `false` puis redéployez pour rétablir le service.
 
 #### Valeurs par fournisseur

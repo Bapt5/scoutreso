@@ -57,6 +57,9 @@ src/
 
 - **Pour étendre l'UI** : placer les nouveaux composants dans `src/components/` et les exporter via un fichier barrel `index.ts` si nécessaire.
 - **Pour ajouter de la logique serveur** : utiliser le dossier `src/app/api/` ; garder tout le code serveur hors du bundle client. Toute nouvelle route API doit envelopper son gestionnaire avec `executerRouteAvecLogs` depuis `@/lib/api/routeAvecLogs` afin d’uniformiser les journaux et l’identifiant de requête.
+- **Pour toute nouvelle route API** : la classer aussi dans `src/lib/demo/routes.ts` (`ROUTES_AUTORISEES_DEMO` ou `ROUTES_BLOQUEES_DEMO`) pour le mode démo. Le test `src/_tests_/demo-routes.test.ts` échoue sinon.
+- **Mode démo** (`NEXT_PUBLIC_DEMO_MODE=true`, projet et base séparés) : démo sans compte où chaque visiteur a un bac à sable jetable de 24 h (groupe fictif semé par `src/lib/demo/semis.ts`) et incarne le trésorier. Elle se branche à quelques points d'entrée (`envoyerMail()` capture les mails dans une boîte virtuelle, `src/proxy.ts` appelle `src/lib/demo/garde.ts`, `src/app/layout.tsx`, la purge paresseuse et `/api/cron/purge-groupes`), sans dupliquer de pages. Code dans `src/lib/demo/`, `src/app/demo/`, `src/app/api/demo/`, `src/components/demo/`. Lire `NEXT_PUBLIC_DEMO_MODE` littéralement (`process.env.NEXT_PUBLIC_DEMO_MODE`) pour qu'elle soit remplacée au build. En local : `docker compose -f compose.demo.yaml up -d`, `pnpm demo:migrate`, `pnpm demo:dev`. Voir `docs/technical/demo.md`.
+- **PDF de la démo** : à régénérer (`pnpm demo:pdf`, avec `.env.demo` et un Chrome local) quand la mise en page des notes de frais signées ou le certificat de démo change ; commiter les PDF et `src/lib/demo/assets/empreintes.json` ensemble.
 - **Pour modifier les styles** : modifier directement les classes Tailwind dans le JSX ; éviter les fichiers CSS personnalisés sauf absolue nécessité.
 
 ## 📦 Build & Déploiement
