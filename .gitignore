@@ -46,3 +46,4 @@ README.old
 docs/.vitepress/dist
 docs/.vitepress/cache
 .env.demo
+.env.docs

@@ -1,4 +1,5 @@
 import { defineConfig } from "vitepress";
+import { actionsAccueil } from "./actionsAccueil";
 import { donneesLegales } from "./donnees-legales";
 
 const urlDocumentation = "https://scoutreso.me";
@@ -7,6 +8,9 @@ const urlScriptAudience = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL;
 const identifiantSiteAudience = process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID;
 // Empreinte SHA-256 du certificat de scellement (non secrète), affichée sur /verifier-signature si définie au build.
 const empreinteCertificat = process.env.NDF_SCELLEMENT_EMPREINTE_SHA256?.trim();
+// Boutons de la page d'accueil : masqués si l'URL correspondante n'est pas définie au build.
+const urlAppProd = process.env.NEXT_PUBLIC_URL_APP_PROD;
+const urlAppDemo = process.env.NEXT_PUBLIC_URL_APP_DEMO;
 const imagePartage = `${urlDocumentation}/og-scoutreso.png`;
 
 const metadonneesPages: Record<string, { titre: string; description: string }> =
@@ -151,6 +155,11 @@ export default defineConfig({
     ],
   ],
   transformPageData(pageData) {
+    if (pageData.relativePath === "index.md") {
+      // Le frontmatter ne peut pas lire l'environnement : les boutons du hero sont injectés ici.
+      const hero = (pageData.frontmatter.hero ??= {});
+      hero.actions = actionsAccueil({ urlAppProd, urlAppDemo });
+    }
     if (pageData.relativePath === "verifier-signature.md") {
       pageData.frontmatter.empreinteCertificat = empreinteCertificat;
     }
