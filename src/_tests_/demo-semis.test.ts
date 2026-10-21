@@ -115,6 +115,44 @@ describe("création d'un bac à sable", () => {
     expect(taux.some((valeur) => valeur >= 0.8 && valeur <= 0.9)).toBe(true);
   });
 
+  it("sème deux notes signées à l'étape du trésorier, avec leur PDF et un RIB fictif", async () => {
+    const bac = await creerBacASable({ ipHachee: "ip" });
+
+    const insertions = mocks.requetes.filter((requete) =>
+      requete.sql.includes("INSERT INTO scouticket_notes_de_frais_signees"),
+    );
+    expect(insertions).toHaveLength(2);
+    expect(requeteContenant("en_attente_tresorier")?.sql).toContain(
+      "'en_attente_tresorier'",
+    );
+    const membres = requeteContenant("INSERT INTO member");
+    const identifiantsUtilisateurs = membres?.valeurs[2] as string[];
+    for (const { valeurs } of insertions) {
+      // bénéficiaire, responsable (admin) et trésorier (le visiteur) distincts
+      expect(valeurs[2]).not.toBe(bac.identifiantUtilisateur);
+      expect(valeurs[3]).toBe(identifiantsUtilisateurs[1]);
+      expect(valeurs[4]).toBe(bac.identifiantUtilisateur);
+      expect((valeurs[7] as Buffer).subarray(0, 5).toString()).toBe("%PDF-");
+      const donnees = JSON.parse(valeurs[5] as string);
+      expect(donnees.emailsTresoriers).toEqual([bac.email]);
+      expect(donnees.emailUtilisateur).toMatch(/@demo\.invalid$/);
+      expect(donnees.detailsDepenses[0].posteBudgetaireId).toBeTruthy();
+      expect(
+        Buffer.from(donnees.rib.donneesBase64, "base64")
+          .subarray(0, 5)
+          .toString(),
+      ).toBe("%PDF-");
+    }
+    expect(bac.notes).toHaveLength(2);
+    expect(bac.notes.map((note) => note.id)).toEqual(
+      insertions.map((insertion) => insertion.valeurs[0]),
+    );
+    // Une note kilométrique : montant = justificatifs + 200 km x 0,354.
+    expect(bac.notes.map((note) => note.montant).sort((a, b) => a - b)).toEqual(
+      [85, 121.3],
+    );
+  });
+
   it("expire le bac à sable dans 24 heures", async () => {
     await creerBacASable({ ipHachee: "ip-hachee" });
 

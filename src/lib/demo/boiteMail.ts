@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
 import type { SendMailOptions } from "nodemailer";
 import { pool } from "@/lib/baseDeDonnees";
@@ -8,6 +9,17 @@ export const MAX_MAILS_PAR_BAC_A_SABLE = 50;
 const TAILLE_MAX_HTML = 500_000;
 
 type Destinataires = SendMailOptions["to"];
+
+const bacImpose = new AsyncLocalStorage<string>();
+
+/**
+ * Exécute `action` en capturant ses mails dans ce bac à sable, sans passer par
+ * la session (utile à la création du bac, avant que le visiteur soit connecté).
+ */
+export const executerDansBacASable = <T>(
+  identifiantBac: string,
+  action: () => Promise<T>,
+) => bacImpose.run(identifiantBac, action);
 
 function listerAdresses(valeur: Destinataires): string[] {
   if (!valeur) return [];
@@ -34,7 +46,10 @@ export async function capturerMailDemo(options: Omit<SendMailOptions, "from">) {
   const identifiant = randomUUID();
   const resultat = { messageId: `demo-${identifiant}` };
 
-  const session = await recupererSession().catch(() => null);
+  const identifiantImpose = bacImpose.getStore();
+  const session = identifiantImpose
+    ? null
+    : await recupererSession().catch(() => null);
   const bac = session
     ? await pool.query<{ id: string }>(
         `SELECT id FROM scouticket_demo_bac_a_sable
@@ -43,7 +58,7 @@ export async function capturerMailDemo(options: Omit<SendMailOptions, "from">) {
         [session.session.activeOrganizationId ?? null, session.user.id],
       )
     : null;
-  const identifiantBac = bac?.rows[0]?.id;
+  const identifiantBac = identifiantImpose ?? bac?.rows[0]?.id;
   if (!identifiantBac) {
     journal.avertissement("demo.mail_sans_bac_a_sable", {
       categorie: "email",

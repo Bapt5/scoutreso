@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   verifierQuotas: vi.fn(),
   purgerBacsASable: vi.fn(),
   creerBacASable: vi.fn(),
+  notifierNotesSemees: vi.fn(),
   signInEmail: vi.fn(),
   query: vi.fn(),
   recupererSession: vi.fn(),
@@ -22,6 +23,9 @@ vi.mock("@/lib/demo/quotas", () => ({
 }));
 vi.mock("@/lib/demo/purge", () => ({
   purgerBacsASable: mocks.purgerBacsASable,
+}));
+vi.mock("@/lib/demo/notifierNotes", () => ({
+  notifierNotesSemees: mocks.notifierNotesSemees,
 }));
 vi.mock("@/lib/demo/semis", () => ({
   creerBacASable: mocks.creerBacASable,
@@ -62,6 +66,9 @@ describe("démarrage et réinitialisation de la démo", () => {
 
     expect(reponse.status).toBe(303);
     expect(reponse.headers.get("location")).toBe("http://localhost:3000/");
+    expect(mocks.notifierNotesSemees).toHaveBeenCalledWith(
+      expect.objectContaining({ identifiantUtilisateur: "u1" }),
+    );
     expect(mocks.signInEmail.mock.calls[0][0].body).toEqual({
       email: "camille-x@demo.invalid",
       password: "mot-de-passe",

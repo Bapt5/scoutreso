@@ -6,8 +6,17 @@ import {
   DOMAINE_EMAIL_DEMO,
   DUREE_BAC_A_SABLE_HEURES,
 } from "@/lib/demo/constantes";
+import {
+  CLES_NOTES_SEMEES,
+  MODELES_NOTES_SEMEES,
+  construireDonneesNdf,
+  lireEmpreintesNotesSemees,
+  lirePdfNoteSemee,
+} from "@/lib/demo/notesSemees";
+import { PERSONNES, prenomPourEmail } from "@/lib/demo/personnes";
 import { UNITES_PAR_DEFAUT } from "@/lib/group";
 import { anneeComptableDebut } from "@/lib/nomenclature";
+import type { DonneesNdfPourEnvoi } from "@/lib/ndfSignature/repository";
 import { journal } from "@/lib/logger";
 
 const JOUR_MS = 24 * 60 * 60 * 1000;
@@ -28,16 +37,6 @@ export function motDePasseDemo() {
 let empreinteMotDePasse: Promise<string> | undefined;
 const empreinteMotDePasseDemo = () =>
   (empreinteMotDePasse ??= hashPassword(motDePasseDemo()));
-
-const PERSONNES = [
-  { prenom: "Camille", nom: "Moreau", role: "owner" },
-  { prenom: "Julien", nom: "Lambert", role: "admin" },
-  { prenom: "Sophie", nom: "Bernard", role: "member" },
-  { prenom: "Thomas", nom: "Petit", role: "member" },
-  { prenom: "Léa", nom: "Roux", role: "member" },
-  { prenom: "Hugo", nom: "Fontaine", role: "member" },
-  { prenom: "Manon", nom: "Girard", role: "member" },
-] as const;
 
 /** Unités accessibles à chaque membre simple (index dans UNITES_PAR_DEFAUT). */
 const ACCES_UNITES: Record<number, number[]> = {
@@ -449,7 +448,19 @@ const formaterDate = (date: Date) =>
 
 const arrondir = (montant: number) => Math.round(montant * 100) / 100;
 
+const NOM_GROUPE_DEMO = "Groupe Démo (fictif)";
+
+/** Note de frais signée semée, dont le trésorier (le visiteur) doit traiter l'étape. */
+export interface NoteSemeeCreee {
+  id: string;
+  demandeur: string;
+  montant: number;
+  groupe: string;
+  rib: NonNullable<DonneesNdfPourEnvoi["rib"]>;
+}
+
 export interface BacASableCree {
+  notes: NoteSemeeCreee[];
   identifiantBac: string;
   identifiantOrganisation: string;
   identifiantUtilisateur: string;
@@ -487,10 +498,7 @@ export async function creerBacASable(parametres: {
     id: randomUUID(),
     memberId: randomUUID(),
     nomComplet: `${personne.prenom} ${personne.nom}`,
-    email: `${personne.prenom
-      .normalize("NFD")
-      .replace(/[̀-ͯ]/g, "")
-      .toLowerCase()}-${suffixe}@${DOMAINE_EMAIL_DEMO}`,
+    email: `${prenomPourEmail(personne.prenom)}-${suffixe}@${DOMAINE_EMAIL_DEMO}`,
   }));
   const visiteur = utilisateurs[0];
 
@@ -565,6 +573,28 @@ export async function creerBacASable(parametres: {
     })),
   ];
 
+  // Notes signées en cours, à l'étape du trésorier : leur PDF d'exemple a déjà
+  // reçu les signatures du bénéficiaire et du responsable.
+  const empreintes = lireEmpreintesNotesSemees();
+  const notes = CLES_NOTES_SEMEES.map((cle) => {
+    const modele = MODELES_NOTES_SEMEES[cle];
+    const donnees = construireDonneesNdf(modele, {
+      emailBeneficiaire: utilisateurs[modele.beneficiaire].email,
+      groupe: NOM_GROUPE_DEMO,
+      branche: unites[modele.unite].label,
+      couleur: unites[modele.unite].color,
+      emailsTresoriers: [visiteur.email],
+      posteBudgetaireId: postesDepense[modele.poste].id,
+    });
+    return {
+      id: randomUUID(),
+      beneficiaireId: utilisateurs[modele.beneficiaire].id,
+      donnees,
+      empreinte: empreintes[cle],
+      pdf: lirePdfNoteSemee(cle),
+    };
+  });
+
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -588,7 +618,7 @@ export async function creerBacASable(parametres: {
     await client.query(
       `INSERT INTO organization (id, name, slug, "createdAt")
        VALUES ($1, $2, $3, now())`,
-      [identifiantOrganisation, "Groupe Démo (fictif)", `demo-${suffixe}`],
+      [identifiantOrganisation, NOM_GROUPE_DEMO, `demo-${suffixe}`],
     );
     await client.query(
       `INSERT INTO member (id, "organizationId", "userId", role, "createdAt")
@@ -700,6 +730,24 @@ export async function creerBacASable(parametres: {
            poste_label text, cree_le timestamptz)`,
       [identifiantOrganisation, JSON.stringify(entrees)],
     );
+    for (const note of notes)
+      await client.query(
+        `INSERT INTO scouticket_notes_de_frais_signees
+           (id, organization_id, beneficiaire_user_id,
+            responsable_signataire_user_id, tresorier_signataire_user_id,
+            statut, donnees_ndf, document_hash, pdf_document)
+         VALUES ($1, $2, $3, $4, $5, 'en_attente_tresorier', $6, $7, $8)`,
+        [
+          note.id,
+          identifiantOrganisation,
+          note.beneficiaireId,
+          utilisateurs[1].id,
+          visiteur.id,
+          JSON.stringify(note.donnees),
+          note.empreinte,
+          note.pdf,
+        ],
+      );
     await client.query(
       `INSERT INTO scouticket_demo_bac_a_sable
          (id, organization_id, utilisateur_id, ip_hachee, expire_le)
@@ -724,6 +772,13 @@ export async function creerBacASable(parametres: {
 
   journal.info("demo.bac_a_sable_cree", { categorie: "demo" });
   return {
+    notes: notes.map((note) => ({
+      id: note.id,
+      demandeur: note.donnees.emailUtilisateur,
+      montant: note.donnees.montant,
+      groupe: NOM_GROUPE_DEMO,
+      rib: note.donnees.rib!,
+    })),
     identifiantBac,
     identifiantOrganisation,
     identifiantUtilisateur: visiteur.id,

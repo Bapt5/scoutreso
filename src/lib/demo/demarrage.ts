@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { pool } from "@/lib/baseDeDonnees";
+import { notifierNotesSemees } from "@/lib/demo/notifierNotes";
 import { hacherIp, verifierQuotas } from "@/lib/demo/quotas";
 import { purgerBacsASable } from "@/lib/demo/purge";
 import { creerBacASable, motDePasseDemo } from "@/lib/demo/semis";
@@ -34,6 +35,7 @@ export async function demarrerBacASable(requete: Request) {
   if (quota !== "ok") return pageSaturee();
 
   const bac = await creerBacASable({ ipHachee });
+  await notifierNotesSemees(bac);
   const connexion = await auth.api.signInEmail({
     body: { email: bac.email, password: motDePasseDemo() },
     headers: requete.headers,
