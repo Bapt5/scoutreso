@@ -32,6 +32,8 @@ const nextConfig = {
   // et `bin/` doit être copié dans la fonction (non détecté par le tracing).
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   outputFileTracingIncludes: {
+    // PDF d'exemple des notes signées semées par la démo.
+    "/api/demo/*": ["./src/lib/demo/assets/**"],
     "/api/send-expense": [
       "./node_modules/@sparticuz/chromium/bin/**",
       "./node_modules/.pnpm/@sparticuz+chromium@*/node_modules/@sparticuz/chromium/bin/**",

@@ -49,6 +49,36 @@ Cette variable concerne le **site de documentation** (VitePress) et non l'applic
 
 Le script n’est ajouté aux pages que si **les deux** variables sont définies. Umami ne dépose pas de cookie et ne collecte pas d’identifiant personnel. Ces variables sont lues au build : redéployez après les avoir modifiées. Le site de documentation (VitePress) lit les mêmes variables au moment de `pnpm docs:build`.
 
+## Démo sans compte {#demo}
+
+Ces variables concernent le **projet de démonstration**, un second déploiement du même dépôt avec sa propre base. Voir [Démo sans compte](/technical/demo) et le modèle `.env.demo.example`.
+
+| Variable                                                       |  Requis   | Description                                                                                                                                                   |
+| -------------------------------------------------------------- | :-------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_DEMO_MODE`                                        |    ✅     | `true` active le mode démo. Lue au build : absente par défaut, la production n'est pas affectée                                                               |
+| `DATABASE_URL`                                                 |    ✅     | Base PostgreSQL **dédiée** à la démo, jamais celle de la production                                                                                           |
+| `BETTER_AUTH_SECRET`, `AUDIT_LOG_SECRET`                       |    ✅     | Valeurs propres à la démo. `BETTER_AUTH_SECRET` sert aussi à dériver le mot de passe des comptes semés, `AUDIT_LOG_SECRET` à hacher les IP des visiteurs      |
+| `BETTER_AUTH_URL`, `APP_URL`                                   |    ✅     | URL publique de la démo (les liens des e-mails capturés pointent vers elle)                                                                                   |
+| `NDF_SCELLEMENT_P12_BASE64`, `NDF_SCELLEMENT_P12_MOT_DE_PASSE` |    ✅     | Certificat auto-signé de démo, généré avec `pnpm ndf:certificat "Scoutreso Demo"`. Nécessaire car la signature de l'étape trésorier s'exécute pendant la démo |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`                      |    ✅     | Valeurs factices (par exemple `demo`) : aucun transport n'est jamais créé en démo, mais `send-expense`, `send-recette` et `/api/health` exigent leur présence |
+| `CRON_SECRET`                                                  | Optionnel | Active `/api/cron/purge-groupes`, qui purge aussi les bacs à sable expirés                                                                                    |
+| `NEXT_PUBLIC_URL_APP_PROD`                                     | Optionnel | URL de la production, pour le bouton « Créer mon vrai groupe » du bandeau (absent : bouton masqué)                                                            |
+| `NEXT_PUBLIC_UMAMI_SCRIPT_URL`, `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Optionnel | Identifiant de site Umami **distinct** de la production                                                                                                       |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                     | Absentes  | Google doit rester désactivé                                                                                                                                  |
+
+Commande de build du projet de démo : `pnpm auth:migrate -y && pnpm db:migrate && pnpm build`.
+
+En local, `.env.demo` (modèle `.env.demo.example`) est lu par `pnpm demo:migrate` et `pnpm demo:dev`, et ses valeurs l'emportent sur `.env` et `.env.local`.
+
+## Boutons de la page d'accueil de la documentation
+
+| Variable                   |  Requis   | Description                                                                                                                               |
+| -------------------------- | :-------: | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_URL_APP_PROD` | Optionnel | URL de l'application de production. Sans elle, les boutons « Je suis responsable de groupe » et « Je suis membre du groupe » sont masqués |
+| `NEXT_PUBLIC_URL_APP_DEMO` | Optionnel | URL de la démo. Sans elle, le bouton « Essayer sans compte » est masqué                                                                   |
+
+Ces variables concernent le **site de documentation** (VitePress) : elles sont lues au moment de `pnpm docs:build`, redéployez la documentation après les avoir modifiées. En local, elles peuvent être mises dans `.env.docs` (modèle `.env.docs.example`), lu par `pnpm docs:dev`, `docs:build` et `docs:preview` après `.env`.
+
 ## Connexion Google (optionnelle)
 
 | Variable               |  Requis   | Description                        |

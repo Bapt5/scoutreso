@@ -17,6 +17,7 @@ docs/
     overview.md
     local-installation.md
     configuration.md
+    demo.md
     environment-variables.md
     docker.md
     historique.md
@@ -26,10 +27,15 @@ docs/
     suivi-budgetaire.md
     troubleshooting.md
     vitepress-docs.md
+  .vitepress/actionsAccueil.ts
   .vitepress/config.mts
   .vitepress/donnees-legales.ts
   .vitepress/theme/custom.css
 ```
+
+## Boutons de l'accueil
+
+Les boutons du hero de `index.md` ne sont pas dans le frontmatter : le frontmatter ne peut pas lire l'environnement. Le hook `transformPageData` de `config.mts` les injecte avec `actionsAccueil` (`.vitepress/actionsAccueil.ts`), d'après `NEXT_PUBLIC_URL_APP_PROD` et `NEXT_PUBLIC_URL_APP_DEMO` lues au build (modèle `.env.docs.example`, fichier local `.env.docs`). Sans URL de production, les boutons de l'application sont masqués ; sans URL de démo, « Essayer sans compte » l'est.
 
 ## Navigation
 

@@ -36,6 +36,16 @@ describe("Proxy Better Auth", () => {
     },
   );
 
+  it.each(["/demo", "/demo/mail", "/demo/mail/m1", "/api/demo/demarrer"])(
+    "répond 404 hors mode démo, même sans session : %s",
+    async (pathname) => {
+      mocks.cookieSession.mockReturnValue(null);
+      const { default: proxy } = await import("../proxy");
+
+      expect(proxy(requete(pathname)).status).toBe(404);
+    },
+  );
+
   it("redirige une invitation sans session vers la connexion", async () => {
     mocks.cookieSession.mockReturnValue(null);
     const { default: proxy } = await import("../proxy");

@@ -8,6 +8,7 @@ import {
   type FormEvent,
 } from "react";
 import Image from "next/image";
+import { fonctionnaliteDisponibleEnDemo } from "@/lib/demo/mode";
 import { useRouter } from "next/navigation";
 import {
   ClipboardDocumentListIcon,
@@ -140,6 +141,11 @@ export function FormulaireDepense({
   // Suivi budgétaire : un poste par pièce, ou un poste global pour la note de
   // frais signée (une seule ligne d'historique à la validation finale).
   const suiviBudgetaireActif = postesBudgetaires !== undefined;
+  // Démo : les notes signées sont semées, le dépôt d'une nouvelle est désactivé.
+  const depotSigneIndisponible =
+    !fonctionnaliteDisponibleEnDemo("depot-note-signee") &&
+    estNoteDeFrais &&
+    ndfSigneeActif;
   const posteGlobal = suiviBudgetaireActif && estNoteDeFrais && ndfSigneeActif;
   const posteParPiece = suiviBudgetaireActif && !posteGlobal;
   const [posteGlobalId, setPosteGlobalId] = useState("");
@@ -820,7 +826,17 @@ export function FormulaireDepense({
         Informations de la dépense
       </h2>
 
-      {estNoteDeFrais && ndfSigneeActif && (
+      {depotSigneIndisponible && (
+        <div
+          role="status"
+          className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"
+        >
+          Le dépôt d&rsquo;une note de frais signée est disponible dans la
+          version complète.
+        </div>
+      )}
+
+      {estNoteDeFrais && ndfSigneeActif && !depotSigneIndisponible && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
           Ce groupe a activé la note de frais signée : après l&rsquo;envoi,
           votre note de frais partira dans un circuit de signature électronique
@@ -1191,14 +1207,18 @@ export function FormulaireDepense({
 
         <button
           type="submit"
-          disabled={envoiEnCours || !estEnLigne || !aTresorier}
+          disabled={
+            envoiEnCours || !estEnLigne || !aTresorier || depotSigneIndisponible
+          }
           className={`w-full p-4 rounded-lg font-semibold text-white transition-colors focus:outline-none ${
-            !envoiEnCours && estEnLigne && aTresorier
+            !envoiEnCours && estEnLigne && aTresorier && !depotSigneIndisponible
               ? "bg-zinc-900 hover:bg-zinc-800 focus:ring-2 focus:ring-zinc-400"
               : "bg-zinc-300 cursor-not-allowed"
           }`}
         >
-          {!aTresorier ? (
+          {depotSigneIndisponible ? (
+            "Disponible dans la version complète"
+          ) : !aTresorier ? (
             "Aucun trésorier n'est configuré pour ce groupe"
           ) : envoiEnCours ? (
             <span className="flex items-center justify-center">

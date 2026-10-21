@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { clientAuth } from "@/lib/auth-client";
+import { fonctionnaliteDisponibleEnDemo } from "@/lib/demo/mode";
 import { GestionAccesUniteMembre } from "@/components/GestionAccesUniteMembre";
 import { libelleRole } from "@/lib/roles";
 
@@ -212,34 +213,43 @@ export default function PageGestionMembres() {
           ← Retour
         </Link>
         <h1 className="mt-4 text-2xl font-semibold text-zinc-900">Membres</h1>
-        <p className="mt-2 text-zinc-600">
-          Invitez un membre dans {organisation.name}.
-        </p>
-        <div className="mt-5 flex gap-2">
-          <input
-            type="email"
-            multiple
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="adresse@email.fr, autre@email.fr"
-            aria-label="Adresses e-mail des membres à inviter"
-            className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white p-3 text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/20"
-          />
-          <button
-            type="button"
-            onClick={() => void inviter()}
-            className="rounded-lg bg-[#1E3A8A] px-4 text-white"
-          >
-            Inviter
-          </button>
-        </div>
-        {message && (
-          <p
-            role="status"
-            className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950"
-          >
-            {message}
+        {!fonctionnaliteDisponibleEnDemo("invitation-membres") ? (
+          <p className="mt-2 text-zinc-600">
+            L&apos;invitation de membres est disponible dans la version
+            complète.
           </p>
+        ) : (
+          <>
+            <p className="mt-2 text-zinc-600">
+              Invitez un membre dans {organisation.name}.
+            </p>
+            <div className="mt-5 flex gap-2">
+              <input
+                type="email"
+                multiple
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="adresse@email.fr, autre@email.fr"
+                aria-label="Adresses e-mail des membres à inviter"
+                className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white p-3 text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/20"
+              />
+              <button
+                type="button"
+                onClick={() => void inviter()}
+                className="rounded-lg bg-[#1E3A8A] px-4 text-white"
+              >
+                Inviter
+              </button>
+            </div>
+            {message && (
+              <p
+                role="status"
+                className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950"
+              >
+                {message}
+              </p>
+            )}
+          </>
         )}
         <h2 className="mt-8 text-lg font-semibold text-zinc-900">
           Utilisateurs

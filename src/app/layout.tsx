@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
+import { ConteneurDemo } from "@/components/demo/ConteneurDemo";
 import { RegisterServiceWorker } from "@/components/register-sw";
+import { estModeDemo } from "@/lib/demo/mode";
 import "./globals.css";
 
+const demo = estModeDemo();
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://app.scoutreso.me"),
+  metadataBase: new URL(
+    (demo && process.env.APP_URL?.trim()) || "https://app.scoutreso.me",
+  ),
   title: {
-    default: "Scoutréso",
-    template: "%s | Scoutréso",
+    default: demo ? "Scoutréso Démo" : "Scoutréso",
+    template: demo ? "%s | Scoutréso Démo" : "%s | Scoutréso",
   },
   description:
     "Envoyez vos justificatifs et notes de frais à la trésorerie de votre groupe scout.",
-  manifest: "/manifest.json",
+  manifest: demo ? undefined : "/manifest.json",
+  ...(demo && { robots: { index: false, follow: false } }),
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -56,7 +63,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Scoutréso" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <link rel="manifest" href="/manifest.json" />
+        {!demo && <link rel="manifest" href="/manifest.json" />}
         {urlScriptAudience && identifiantSiteAudience && (
           <script
             defer
@@ -66,7 +73,8 @@ export default function RootLayout({
         )}
       </head>
       <body className="font-sans">
-        <RegisterServiceWorker />
+        {!demo && <RegisterServiceWorker />}
+        {demo && <ConteneurDemo />}
         <div className="min-h-screen">{children}</div>
       </body>
     </html>

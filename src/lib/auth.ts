@@ -3,6 +3,7 @@ import { createAuthMiddleware } from "better-auth/api";
 import { lastLoginMethod, organization } from "better-auth/plugins";
 import { i18n, locales } from "@better-auth/i18n";
 import { nextCookies } from "better-auth/next-js";
+import { estModeDemo } from "@/lib/demo/mode";
 import { entetesIpDeConfiance } from "@/lib/api/entetesIpConfiance";
 import { pool } from "@/lib/baseDeDonnees";
 import { envoyerEmailInvitation } from "@/lib/emailInvitation";
@@ -36,8 +37,12 @@ export const auth = betterAuth({
       ipAddressHeaders: entetesIpDeConfiance(),
     },
   },
+  // Démo : la session suit la durée de vie du bac à sable.
+  ...(estModeDemo() && { session: { expiresIn: 24 * 60 * 60 } }),
   emailAndPassword: {
     enabled: true,
+    // Démo : les visiteurs ne s'inscrivent pas, leur bac à sable est semé.
+    disableSignUp: estModeDemo(),
     requireEmailVerification: true,
     minPasswordLength: 8,
     revokeSessionsOnPasswordReset: true,

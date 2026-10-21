@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { estModeDemo } from "@/lib/demo/mode";
 import { envoyerEmailDepense } from "@/lib/email";
 import { assainirSegmentNomFichier, devinerExtension } from "@/lib/attachments";
 import { analyserDateIso, dedoublonnerNomsFichiers } from "@/lib/nomenclature";
@@ -169,6 +170,13 @@ export async function POST(req: NextRequest) {
         group.parametres.ndfSigneeActif &&
         donneesEmail.typeEnvoi === "note-de-frais"
       ) {
+        // Démo : le dépôt lancerait Chromium et ouvrirait un vrai circuit.
+        if (estModeDemo())
+          return jsonError(
+            "Le dépôt d'une note de frais signée est disponible dans la version complète.",
+            // Pas 403 : le formulaire le traduit en « session expirée ».
+            422,
+          );
         const depot = await deposerNoteDeFraisSignee({
           identifiantOrganisation,
           beneficiaireUserId: identifiantUtilisateur,

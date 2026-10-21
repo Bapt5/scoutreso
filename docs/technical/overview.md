@@ -13,6 +13,7 @@
 - Suivi budgétaire optionnel par poste (activable par groupe, nécessite l’historique), pour comparer le budget prévu au réalisé sur l’année comptable : voir [Suivi budgétaire](/technical/suivi-budgetaire)
 - Groupes indépendants : unités et couleurs propres à chaque groupe
 - Trois rôles : Membre, Responsable de groupe (admin) et Trésorier (owner) ; parmi les Trésoriers, un responsable choisit dans la gestion des membres lesquels reçoivent les envois (au moins un obligatoirement)
+- Démo sans compte, déployable à part : un bac à sable jetable par visiteur et une boîte mail virtuelle (aucun e-mail réellement envoyé) : voir [Démo sans compte](/technical/demo)
 - Support PWA (installation écran d’accueil)
 - Mode hors ligne partiel (préparation possible, envoi en ligne)
 
