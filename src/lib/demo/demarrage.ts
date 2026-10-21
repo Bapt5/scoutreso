@@ -5,17 +5,6 @@ import { hacherIp, verifierQuotas } from "@/lib/demo/quotas";
 import { purgerBacsASable } from "@/lib/demo/purge";
 import { creerBacASable, motDePasseDemo } from "@/lib/demo/semis";
 
-export async function recupererBacASableCourant(
-  identifiantUtilisateur: string,
-) {
-  const resultat = await pool.query<{ id: string }>(
-    `SELECT id FROM scouticket_demo_bac_a_sable
-      WHERE utilisateur_id = $1 AND expire_le > now()`,
-    [identifiantUtilisateur],
-  );
-  return resultat.rows[0] ?? null;
-}
-
 function pageSaturee() {
   return new Response(
     `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Démo saturée</title></head><body style="font-family:system-ui,sans-serif;max-width:32rem;margin:4rem auto;padding:0 1rem;color:#18181b"><h1>La démo est momentanément saturée</h1><p>Trop de démonstrations ont été lancées récemment. Réessayez dans quelques minutes.</p><p><a href="/demo">Retour</a></p></body></html>`,

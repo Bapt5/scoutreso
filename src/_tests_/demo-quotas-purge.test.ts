@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   query: vi.fn(),
@@ -49,6 +49,19 @@ describe("quotas du mode démo", () => {
       expect(mocks.query.mock.calls[0][1]).toEqual(["ip"]);
     },
   );
+});
+
+describe("quota par IP en développement", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("est relevé sous `next dev`, où toutes les IP sont identiques", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    mocks.query.mockResolvedValue({
+      rows: [{ par_ip: MAX_CREATIONS_PAR_IP_PAR_HEURE + 20, actifs: 3 }],
+    });
+
+    expect(await verifierQuotas("ip")).toBe("ok");
+  });
 });
 
 describe("purge des bacs à sable", () => {

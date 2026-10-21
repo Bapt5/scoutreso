@@ -37,6 +37,8 @@ export const ROUTES_AUTORISEES_DEMO: readonly string[] = [
   "/api/budget/postes",
   "/api/cron/purge-groupes",
   "/api/demo/demarrer",
+  "/api/demo/mails",
+  "/api/demo/mails/[id]/html",
   "/api/demo/reinitialiser",
   "/api/group/config",
   "/api/group/members",

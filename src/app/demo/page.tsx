@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { BoutonLancerDemo } from "@/components/demo/BoutonLancerDemo";
 import { LogoScoutreso } from "@/components/LogoScoutreso";
-import { recupererBacASableCourant } from "@/lib/demo/demarrage";
+import { recupererBacASableCourant } from "@/lib/demo/bacASable";
 import { estModeDemo } from "@/lib/demo/mode";
 import { recupererSession } from "@/lib/sessionServeur";
 

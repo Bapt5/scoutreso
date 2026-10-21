@@ -11,6 +11,7 @@ import { InterrupteurParametre } from "@/components/InterrupteurParametre";
 import { LogoGroupe } from "@/components/LogoGroupe";
 import { SelecteurMoyensPaiement } from "@/components/SelecteurMoyensPaiement";
 import { SuppressionGroupe } from "@/components/SuppressionGroupe";
+import { fonctionnaliteDisponibleEnDemo } from "@/lib/demo/mode";
 import { TauxKilometre } from "@/components/TauxKilometre";
 import { clientAuth } from "@/lib/auth-client";
 import { erreurDebutAnneeComptable } from "@/lib/nomenclature";
@@ -485,12 +486,14 @@ export default function PageParametresGroupe() {
                 {message}
               </p>
             )}
-            {estTresorier && organisation && (
-              <SuppressionGroupe
-                nomGroupe={organisation.name}
-                parametres={parametres}
-              />
-            )}
+            {estTresorier &&
+              organisation &&
+              fonctionnaliteDisponibleEnDemo("suppression-groupe") && (
+                <SuppressionGroupe
+                  nomGroupe={organisation.name}
+                  parametres={parametres}
+                />
+              )}
           </div>
         )}
       </section>

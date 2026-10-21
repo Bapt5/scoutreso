@@ -4,6 +4,7 @@ import { pool } from "@/lib/baseDeDonnees";
 import {
   MAX_BACS_A_SABLE_ACTIFS,
   MAX_CREATIONS_PAR_IP_PAR_HEURE,
+  MAX_CREATIONS_PAR_IP_PAR_HEURE_DEV,
 } from "@/lib/demo/constantes";
 
 /** HMAC de l'IP du visiteur : l'adresse en clair n'est jamais stockée. */
@@ -28,7 +29,11 @@ export async function verifierQuotas(ipHachee: string) {
     [ipHachee],
   );
   const { par_ip, actifs } = resultat.rows[0];
-  if (par_ip >= MAX_CREATIONS_PAR_IP_PAR_HEURE) return "ip" as const;
+  const limiteParIp =
+    process.env.NODE_ENV === "development"
+      ? MAX_CREATIONS_PAR_IP_PAR_HEURE_DEV
+      : MAX_CREATIONS_PAR_IP_PAR_HEURE;
+  if (par_ip >= limiteParIp) return "ip" as const;
   if (actifs >= MAX_BACS_A_SABLE_ACTIFS) return "global" as const;
   return "ok" as const;
 }

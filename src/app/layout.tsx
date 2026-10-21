@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ConteneurDemo } from "@/components/demo/ConteneurDemo";
 import { RegisterServiceWorker } from "@/components/register-sw";
 import { estModeDemo } from "@/lib/demo/mode";
 import "./globals.css";
@@ -73,6 +74,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans">
         {!demo && <RegisterServiceWorker />}
+        {demo && <ConteneurDemo />}
         <div className="min-h-screen">{children}</div>
       </body>
     </html>

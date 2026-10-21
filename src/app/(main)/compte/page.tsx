@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProfilUtilisateur from "@/components/ProfilUtilisateur";
+import { fonctionnaliteDisponibleEnDemo } from "@/lib/demo/mode";
 import SuppressionCompte from "@/components/SuppressionCompte";
 
 /** Page « Mon compte » : paramètres du profil de l’utilisateur connecté. */
@@ -14,7 +15,9 @@ export default function PageCompte() {
           </Link>
         </header>
         <ProfilUtilisateur />
-        <SuppressionCompte />
+        {fonctionnaliteDisponibleEnDemo("suppression-compte") && (
+          <SuppressionCompte />
+        )}
       </div>
     </main>
   );

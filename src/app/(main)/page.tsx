@@ -9,7 +9,7 @@ import { FormulaireRecette } from "@/components/FormulaireRecette";
 import { CapturePhoto } from "@/components/PhotoCapture";
 import { LogoScoutreso } from "@/components/LogoScoutreso";
 import { InviteInstallation } from "@/components/InstallPrompt";
-import { estModeDemo } from "@/lib/demo/mode";
+import { estModeDemo, fonctionnaliteDisponibleEnDemo } from "@/lib/demo/mode";
 import { ConfigurationGroupe } from "@/components/GroupSetup";
 import { useStatutEnLigne } from "@/lib/useOnlineStatus";
 import {
@@ -556,21 +556,23 @@ export default function Home() {
                 );
               })}
           </div>
-          <div className="mt-5 flex gap-2">
-            <input
-              value={nomGroupe}
-              onChange={(e) => setNomGroupe(e.target.value)}
-              placeholder="Nom du groupe"
-              className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white p-3 text-zinc-900 placeholder:text-zinc-500"
-            />
-            <button
-              type="button"
-              onClick={() => void creerGroupe()}
-              className="rounded-lg bg-[#1E3A8A] px-4 text-white"
-            >
-              Créer
-            </button>
-          </div>
+          {fonctionnaliteDisponibleEnDemo("creation-groupe") && (
+            <div className="mt-5 flex gap-2">
+              <input
+                value={nomGroupe}
+                onChange={(e) => setNomGroupe(e.target.value)}
+                placeholder="Nom du groupe"
+                className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white p-3 text-zinc-900 placeholder:text-zinc-500"
+              />
+              <button
+                type="button"
+                onClick={() => void creerGroupe()}
+                className="rounded-lg bg-[#1E3A8A] px-4 text-white"
+              >
+                Créer
+              </button>
+            </div>
+          )}
           <Link
             href="/compte"
             className="mt-5 block text-center text-sm text-zinc-600 underline"
