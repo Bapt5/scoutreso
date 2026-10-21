@@ -46,6 +46,13 @@ export default function proxy(requete: NextRequest) {
   }
 
   if (estModeDemo()) return gererDemo(requete);
+  // Hors démo, ses pages et ses routes n'existent pas (avant toute redirection vers la connexion).
+  if (
+    chemin === "/demo" ||
+    chemin.startsWith("/demo/") ||
+    chemin.startsWith("/api/demo/")
+  )
+    return new NextResponse(null, { status: 404 });
 
   const estConnecte = Boolean(getSessionCookie(requete));
   if (chemin === "/invitation" && !estConnecte) {
