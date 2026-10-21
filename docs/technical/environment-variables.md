@@ -12,6 +12,14 @@ Copiez `.env.example` vers `.env.local`, puis renseignez les variables suivantes
 
 Les événements `auth.audit.*` sont des lignes JSON sur stdout. Un collecteur de logs peut ingérer la sortie du conteneur applicatif ; ils ne contiennent ni e-mail, ni identifiant Better Auth brut, ni secret. Les champs `utilisateur` et `organisation` sont chiffrés avec AES-256-GCM et peuvent être déchiffrés avec `dechiffrerIdentifiant` et la même valeur de `AUDIT_LOG_SECRET`.
 
+### Adresse IP des visiteurs et limitation de débit
+
+Better Auth limite le débit de ses routes par adresse IP et lit cette IP dans un seul en-tête de confiance, choisi selon l’environnement (`src/lib/api/entetesIpConfiance.ts`) :
+
+- sur Vercel, l’IP est lue dans `x-real-ip`, que Vercel écrase avec l’IP publique du visiteur. Aucune variable à configurer : la variable système `VERCEL` suffit (case « Automatically expose System Environment Variables » cochée dans les réglages du projet) ;
+- ailleurs, l’IP est lue dans `cf-connecting-ip`, ce qui suppose un déploiement derrière Cloudflare (Cloudflare Tunnel par exemple) ;
+- sans IP de confiance, Better Auth regroupe tous les visiteurs sous la clé `no-trusted-ip` et leur applique un compteur commun.
+
 ## Note de frais signée
 
 | Variable                          |  Requis   | Description                                                                                                                                                                                                                                                                    |

@@ -3,6 +3,7 @@ import { createAuthMiddleware } from "better-auth/api";
 import { lastLoginMethod, organization } from "better-auth/plugins";
 import { i18n, locales } from "@better-auth/i18n";
 import { nextCookies } from "better-auth/next-js";
+import { entetesIpDeConfiance } from "@/lib/api/entetesIpConfiance";
 import { pool } from "@/lib/baseDeDonnees";
 import { envoyerEmailInvitation } from "@/lib/emailInvitation";
 import {
@@ -32,8 +33,7 @@ export const auth = betterAuth({
   },
   advanced: {
     ipAddress: {
-      // Cloudflare Tunnel transmet l'adresse du visiteur dans cet en-tête.
-      ipAddressHeaders: ["cf-connecting-ip"],
+      ipAddressHeaders: entetesIpDeConfiance(),
     },
   },
   emailAndPassword: {
