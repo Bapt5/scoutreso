@@ -1,0 +1,18 @@
+# Base PostgreSQL jetable pour tester la démo en local (voir docs/technical/demo.md).
+# Port 5433 pour ne pas entrer en conflit avec la base de développement habituelle.
+name: scoutreso-demo
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: scoutreso_demo
+      POSTGRES_USER: scoutreso_demo
+      POSTGRES_PASSWORD: scoutreso_demo
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_demo_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_demo_data:

@@ -36,6 +36,8 @@ export const ROUTES_AUTORISEES_DEMO: readonly string[] = [
   "/api/budget/montants",
   "/api/budget/postes",
   "/api/cron/purge-groupes",
+  "/api/demo/demarrer",
+  "/api/demo/reinitialiser",
   "/api/group/config",
   "/api/group/members",
   "/api/group/members/[memberId]",
@@ -78,6 +80,7 @@ export const ROUTES_AUTH_AUTORISEES_DEMO: readonly string[] = [
   "/organization/get-active-member",
   "/organization/get-active-member-role",
   "/organization/list",
+  "/organization/list-user-invitations",
 ];
 
 /** Routes /demo publiques (le reste de /api/demo exige une session). */

@@ -23,6 +23,8 @@
   "scripts": {
     "dev": "node scripts/copier-assets-scanic.mjs && next dev",
     "build": "node scripts/copier-assets-scanic.mjs && next build",
+    "demo:dev": "node scripts/copier-assets-scanic.mjs && node scripts/dev-demo.mjs",
+    "demo:migrate": "node scripts/migrer-demo.mjs",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",

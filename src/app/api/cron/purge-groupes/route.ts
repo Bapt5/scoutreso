@@ -2,6 +2,8 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { executerRouteAvecLogs } from "@/lib/api/routeAvecLogs";
 import { jsonError } from "@/lib/api/utils";
+import { estModeDemo } from "@/lib/demo/mode";
+import { purgerBacsASable } from "@/lib/demo/purge";
 import { purgerGroupesEchus } from "@/lib/suppressionGroupe";
 
 function secretValide(requete: Request, secret: string) {
@@ -20,7 +22,13 @@ async function purger(requete: Request) {
     const secret = process.env.CRON_SECRET;
     if (!secret) return jsonError("Introuvable", 404);
     if (!secretValide(requete, secret)) return jsonError("Non autorisé", 401);
-    return NextResponse.json({ purges: await purgerGroupesEchus() });
+    const purges = await purgerGroupesEchus();
+    if (estModeDemo())
+      return NextResponse.json({
+        purges,
+        bacsASablePurges: await purgerBacsASable(),
+      });
+    return NextResponse.json({ purges });
   });
 }
 

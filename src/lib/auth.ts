@@ -37,6 +37,8 @@ export const auth = betterAuth({
       ipAddressHeaders: entetesIpDeConfiance(),
     },
   },
+  // Démo : la session suit la durée de vie du bac à sable.
+  ...(estModeDemo() && { session: { expiresIn: 24 * 60 * 60 } }),
   emailAndPassword: {
     enabled: true,
     // Démo : les visiteurs ne s'inscrivent pas, leur bac à sable est semé.

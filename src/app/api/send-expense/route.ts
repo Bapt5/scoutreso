@@ -174,7 +174,8 @@ export async function POST(req: NextRequest) {
         if (estModeDemo())
           return jsonError(
             "Le dépôt d'une note de frais signée est disponible dans la version complète.",
-            403,
+            // Pas 403 : le formulaire le traduit en « session expirée ».
+            422,
           );
         const depot = await deposerNoteDeFraisSignee({
           identifiantOrganisation,

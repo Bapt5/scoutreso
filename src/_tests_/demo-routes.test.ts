@@ -48,7 +48,7 @@ describe("classification des routes API en démo", () => {
   it("n'autorise que des routes Better Auth sans création ni suppression", () => {
     for (const route of ROUTES_AUTH_AUTORISEES_DEMO)
       expect(route).not.toMatch(
-        /sign-up|sign-in|password|delete|create|invit|remove|email|leave/,
+        /sign-up|sign-in|password|delete|create|invite|accept|reject|cancel|remove|email|leave/,
       );
   });
 });

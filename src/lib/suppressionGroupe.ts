@@ -14,6 +14,8 @@ import {
   rechercherHistorique,
   schemaFiltresHistorique,
 } from "@/lib/historiqueRequetes";
+import { purgerBacsASable } from "@/lib/demo/purge";
+import { estModeDemo } from "@/lib/demo/mode";
 import { journal } from "@/lib/logger";
 import { anneeComptableDebut } from "@/lib/nomenclature";
 
@@ -280,6 +282,7 @@ export function declencherPurgeParesseuse() {
     after(async () => {
       try {
         await purgerGroupesEchus();
+        if (estModeDemo()) await purgerBacsASable();
       } catch (erreur) {
         journal.erreur("groupe.purge_echouee", {
           categorie: "groupe",
